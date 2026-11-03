@@ -1,1 +1,30 @@
-{}
+{
+	"name": "Beacon",
+	"author": [
+		"Telepedia Ltd."
+	],
+	"url": "https://github.com/telepedia/mediawiki-extensions-beacon",
+	"descriptionmsg": "beacon-desc",
+	"license-name": "GPL-3.0-or-later",
+	"type": "other",
+	"version": "0.0.0",
+	"requires": {
+		"MediaWiki": ">= 1.47.0"
+	},
+	"MessagesDirs": {
+		"Beacon": [
+			"i18n"
+		]
+	},
+	"AutoloadNamespaces": {
+		"Telepedia\\Extensions\\Beacon\\": "includes"
+	},
+	"ResourceModules": {},
+	"DatabaseVirtualDomains": [
+		"virtual-beacon"
+	],
+	"ConfigRegistry": {
+		"Beacon": "MediaWiki\\Config\\GlobalVarConfig::newInstance"
+	},
+	"manifest_version": 2
+}

@@ -1,0 +1,260 @@
+[
+	{
+		"name": "beacon_notfications",
+		"comment": "Notifications stored as one row per user per notification. Should be registered as a virtual domain so any wiki can read it.",
+		"columns": [
+			{
+				"name": "notif_id",
+				"type": "bigint",
+				"options": {
+					"notnull": true,
+					"unsigned": true,
+					"autoincrement": true
+				}
+			},
+			{
+				"name": "notif_user",
+				"comment": "Recipient's user ID",
+				"type": "integer",
+				"options": {
+					"notnull": true,
+					"unsigned": true
+				}
+			},
+			{
+				"name": "notif_wiki",
+				"comment": "Originating wiki ID",
+				"type": "binary",
+				"options": {
+					"notnull": true,
+					"length": 64
+				}
+			},
+			{
+				"name": "notif_type",
+				"comment": "Notification type",
+				"type": "binary",
+				"options": {
+					"notnull": true,
+					"length": 64
+				}
+			},
+			{
+				"name": "notif_category",
+				"comment": "Opaque category key",
+				"type": "binary",
+				"options": {
+					"notnull": true,
+					"length": 64
+				}
+			},
+			{
+				"name": "notif_agent_id",
+				"comment": "User ID that triggered the notification; or NULL if system notification",
+				"type": "integer",
+				"options": {
+					"notnull": false,
+					"unsigned": true
+				}
+			},
+			{
+				"name": "notif_agent_name",
+				"comment": "Agent username at send time",
+				"type": "binary",
+				"options": {
+					"notnull": false,
+					"length": 255
+				}
+			},
+			{
+				"name": "notif_page_id",
+				"comment": "Page ID on the originating wiki, or NULL.",
+				"type": "integer",
+				"options": {
+					"notnull": false,
+					"unsigned": true
+				}
+			},
+			{
+				"name": "notif_page_ns",
+				"type": "integer",
+				"options": {
+					"notnull": false
+				}
+			},
+			{
+				"name": "notif_page_title",
+				"comment": "Page DB key at send time",
+				"type": "binary",
+				"options": {
+					"notnull": false,
+					"length": 255
+				}
+			},
+			{
+				"name": "notif_url",
+				"comment": "Fully qualified primary link",
+				"type": "blob",
+				"options": {
+					"notnull": true,
+					"length": 65530
+				}
+			},
+			{
+				"name": "notif_header",
+				"comment": "Rendered plain-text header, in notif_language",
+				"type": "blob",
+				"options": {
+					"notnull": true,
+					"length": 65530
+				}
+			},
+			{
+				"name": "notif_body",
+				"comment": "Rendered plain-text body or excerpt, in notif_language",
+				"type": "blob",
+				"options": {
+					"notnull": false,
+					"length": 65530
+				}
+			},
+			{
+				"name": "notif_language",
+				"comment": "Language code the header, body and link labels were rendered in",
+				"type": "binary",
+				"options": {
+					"notnull": true,
+					"length": 35
+				}
+			},
+			{
+				"name": "notif_icon",
+				"comment": "Icon, either fully qualified URL or Codex icon name",
+				"type": "blob",
+				"options": {
+					"notnull": true,
+					"length": 65530
+				}
+			},
+			{
+				"name": "notif_links",
+				"comment": "JSON array of secondary links: [{label, url}] with rendered labels",
+				"type": "blob",
+				"options": {
+					"notnull": false,
+					"length": 65530
+				}
+			},
+			{
+				"name": "notif_group_key",
+				"comment": "Optional key for collapsing similar unread notifications",
+				"type": "binary",
+				"options": {
+					"notnull": false,
+					"length": 255
+				}
+			},
+			{
+				"name": "notif_created",
+				"type": "mwtimestamp",
+				"options": {
+					"notnull": true
+				}
+			},
+			{
+				"name": "notif_read",
+				"comment": "When the notification was read; NULL while unread",
+				"type": "mwtimestamp",
+				"options": {
+					"notnull": false
+				}
+			},
+			{
+				"name": "notif_hidden",
+				"comment": "1 if hidden because the page was deleted or suppressed",
+				"type": "mwtinyint",
+				"options": {
+					"notnull": true,
+					"unsigned": true,
+					"default": 0
+				}
+			}
+		],
+		"indexes": [
+			{
+				"name": "notif_user_id",
+				"comment": "List all notifications for a user, newest first",
+				"columns": [
+					"notif_user",
+					"notif_id"
+				],
+				"unique": false
+			},
+			{
+				"name": "notif_user_read",
+				"comment": "List and count unread notifications for a user",
+				"columns": [
+					"notif_user",
+					"notif_read",
+					"notif_id"
+				],
+				"unique": false
+			},
+			{
+				"name": "notif_read_created",
+				"comment": "Age-based purges of read and unread notifications",
+				"columns": [
+					"notif_read",
+					"notif_created"
+				],
+				"unique": false
+			},
+			{
+				"name": "notif_wiki_page",
+				"comment": "Hide on page deletion; purge when a wiki is removed",
+				"columns": [
+					"notif_wiki",
+					"notif_page_id"
+				],
+				"unique": false
+			}
+		],
+		"pk": [
+			"notif_id"
+		]
+	},
+	{
+		"name": "notification_user",
+		"comment": "Per-user notification state, one row per user",
+		"columns": [
+			{
+				"name": "nu_user",
+				"type": "integer",
+				"options": {
+					"notnull": true,
+					"unsigned": true
+				}
+			},
+			{
+				"name": "nu_seen",
+				"comment": "Last time the user opened the notifications panel",
+				"type": "mwtimestamp",
+				"options": {
+					"notnull": false
+				}
+			},
+			{
+				"name": "nu_last_insert",
+				"comment": "Timestamp of the user's newest notification, for client cache validation",
+				"type": "mwtimestamp",
+				"options": {
+					"notnull": false
+				}
+			}
+		],
+		"indexes": [],
+		"pk": [
+			"nu_user"
+		]
+	}
+]
