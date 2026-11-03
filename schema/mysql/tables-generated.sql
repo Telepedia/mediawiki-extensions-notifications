@@ -2,7 +2,7 @@
 -- Source: schema/tables.json
 -- Do not modify this file directly.
 -- See https://www.mediawiki.org/wiki/Manual:Schema_changes
-CREATE TABLE /*_*/beacon_notfications (
+CREATE TABLE /*_*/beacon_notifications (
   notif_id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
   notif_user INT UNSIGNED NOT NULL,
   notif_wiki VARBINARY(64) NOT NULL,

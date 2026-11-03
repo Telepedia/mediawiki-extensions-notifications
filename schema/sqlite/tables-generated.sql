@@ -2,7 +2,7 @@
 -- Source: schema/tables.json
 -- Do not modify this file directly.
 -- See https://www.mediawiki.org/wiki/Manual:Schema_changes
-CREATE TABLE /*_*/beacon_notfications (
+CREATE TABLE /*_*/beacon_notifications (
   notif_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   notif_user INTEGER UNSIGNED NOT NULL,
   notif_wiki BLOB NOT NULL, notif_wiki_name BLOB NOT NULL,
@@ -20,13 +20,13 @@ CREATE TABLE /*_*/beacon_notfications (
   notif_hidden SMALLINT UNSIGNED DEFAULT 0 NOT NULL
 );
 
-CREATE INDEX notif_user_id ON /*_*/beacon_notfications (notif_user, notif_id);
+CREATE INDEX notif_user_id ON /*_*/beacon_notifications (notif_user, notif_id);
 
-CREATE INDEX notif_user_read ON /*_*/beacon_notfications (notif_user, notif_read, notif_id);
+CREATE INDEX notif_user_read ON /*_*/beacon_notifications (notif_user, notif_read, notif_id);
 
-CREATE INDEX notif_read_created ON /*_*/beacon_notfications (notif_read, notif_created);
+CREATE INDEX notif_read_created ON /*_*/beacon_notifications (notif_read, notif_created);
 
-CREATE INDEX notif_wiki_page ON /*_*/beacon_notfications (notif_wiki, notif_page_id);
+CREATE INDEX notif_wiki_page ON /*_*/beacon_notifications (notif_wiki, notif_page_id);
 
 
 CREATE TABLE /*_*/notification_user (

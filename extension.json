@@ -26,5 +26,38 @@
 	"ConfigRegistry": {
 		"Beacon": "MediaWiki\\Config\\GlobalVarConfig::newInstance"
 	},
+	"HookHandlers": {
+		"schema": {
+			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SchemaHooks"
+		}
+	},
+	"Hooks": {
+		"LoadExtensionSchemaUpdates": "schema"
+	},
+	"ServiceWiringFiles": [
+		"includes/ServiceWiring.php"
+	],
+	"DomainEventIngresses": [
+		{
+			"events": [
+				"PageDeleted",
+				"PageLatestRevisionChanged"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Events\\PageEventIngress",
+			"services": [
+				"Beacon.EventController"
+			]
+		}
+	],
+	"JobClasses": {
+		"BeaconHidePageNotificationsJob": {
+			"class": "Telepedia\\Extensions\\Beacon\\Jobs\\BeaconHidePageNotificationsJob",
+			"needsPage": false,
+			"services": [
+				"Beacon.NotificationStore",
+				"ConnectionProvider"
+			]
+		}
+	},
 	"manifest_version": 2
 }

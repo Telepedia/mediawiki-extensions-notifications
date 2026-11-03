@@ -1,6 +1,6 @@
 [
 	{
-		"name": "beacon_notfications",
+		"name": "beacon_notifications",
 		"comment": "Notifications stored as one row per user per notification. Should be registered as a virtual domain so any wiki can read it.",
 		"columns": [
 			{
