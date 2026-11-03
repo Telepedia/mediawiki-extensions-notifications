@@ -17,7 +17,7 @@
 		]
 	},
 	"AutoloadNamespaces": {
-		"Telepedia\\Extensions\\Beacon\\": "includes"
+		"Telepedia\\Extensions\\Beacon\\": "includes/"
 	},
 	"ResourceModules": {},
 	"DatabaseVirtualDomains": [
