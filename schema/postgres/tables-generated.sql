@@ -6,6 +6,7 @@ CREATE TABLE beacon_notfications (
   notif_id BIGSERIAL NOT NULL,
   notif_user INT NOT NULL,
   notif_wiki TEXT NOT NULL,
+  notif_wiki_name TEXT NOT NULL,
   notif_type TEXT NOT NULL,
   notif_category TEXT NOT NULL,
   notif_agent_id INT DEFAULT NULL,

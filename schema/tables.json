@@ -31,6 +31,12 @@
 				}
 			},
 			{
+				"name": "notif_wiki_name",
+				"comment": "Source wiki's sitename at send time",
+				"type": "binary",
+				"options": { "notnull": true, "length": 255 }
+			},
+			{
 				"name": "notif_type",
 				"comment": "Notification type",
 				"type": "binary",

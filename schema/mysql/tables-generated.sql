@@ -6,6 +6,7 @@ CREATE TABLE /*_*/beacon_notfications (
   notif_id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
   notif_user INT UNSIGNED NOT NULL,
   notif_wiki VARBINARY(64) NOT NULL,
+  notif_wiki_name VARBINARY(255) NOT NULL,
   notif_type VARBINARY(64) NOT NULL,
   notif_category VARBINARY(64) NOT NULL,
   notif_agent_id INT UNSIGNED DEFAULT NULL,

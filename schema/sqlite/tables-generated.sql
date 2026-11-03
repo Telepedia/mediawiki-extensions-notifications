@@ -5,8 +5,9 @@
 CREATE TABLE /*_*/beacon_notfications (
   notif_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
   notif_user INTEGER UNSIGNED NOT NULL,
-  notif_wiki BLOB NOT NULL, notif_type BLOB NOT NULL,
-  notif_category BLOB NOT NULL, notif_agent_id INTEGER UNSIGNED DEFAULT NULL,
+  notif_wiki BLOB NOT NULL, notif_wiki_name BLOB NOT NULL,
+  notif_type BLOB NOT NULL, notif_category BLOB NOT NULL,
+  notif_agent_id INTEGER UNSIGNED DEFAULT NULL,
   notif_agent_name BLOB DEFAULT NULL,
   notif_page_id INTEGER UNSIGNED DEFAULT NULL,
   notif_page_ns INTEGER DEFAULT NULL,
