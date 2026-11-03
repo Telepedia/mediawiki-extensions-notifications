@@ -1,1 +1,12 @@
-{}
+{
+	"@metadata": {
+		"authors": [
+			"Telepedia Ltd."
+		]
+	},
+	"beacon-desc": "{{desc|name=Beacon|url=https://github.com/telepedia/mediawiki-extensions-beacon}}",
+	"beacon-notification-reverted-undo": "Header of the notification sent when someone reverts the recipient's edit. Plain text, rendered when the notification is created.\n\nParameters:\n* $1 - username of the user who undid the edit, also usable for GENDER\n* $2 - title of the page",
+	"beacon-notification-reverted-rollback": "Header of the notification sent when someone rolls back the recipient's edit. Plain text, rendered when the notification is created.\n\nParameters:\n* $1 - username of the user who rolled back the edit, also usable for GENDER\n* $2 - title of the page",
+	"beacon-notification-link-view-changes": "Label of a notification link to the diff of the change.",
+	"beacon-notification-link-page": "Label of a notification link to the page the notification is about."
+}

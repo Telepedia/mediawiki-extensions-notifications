@@ -9,7 +9,13 @@ use Telepedia\Extensions\Beacon\NotificationStore;
 return [
 	'Beacon.EventController' => static function ( MediaWikiServices $services ): EventController {
 		return new EventController(
-			$services->getJobQueueGroup()
+			$services->getJobQueueGroup(),
+			$services->getService( 'Beacon.NotificationStore' ),
+			$services->getRevisionStore(),
+			$services->getTitleFactory(),
+			$services->getUserOptionsLookup(),
+			$services->getMessageFormatterFactory(),
+			$services->getMainConfig()
 		);
 	},
 

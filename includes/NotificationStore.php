@@ -4,6 +4,7 @@ namespace Telepedia\Extensions\Beacon;
 
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
+use Telepedia\Extensions\Beacon\Domain\Notification;
 use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
 
@@ -20,8 +21,14 @@ class NotificationStore {
 		private readonly LoggerInterface $logger,
 	) {}
 
-	public function store( UserIdentity $user ): int {
-
+	/**
+	 * Not implemented yet, but return 0 for the meantime whilst
+	 * we're testing so other functions can run
+	 * @param Notification $notification
+	 * @return int
+	 */
+	public function store( Notification $notification ): int {
+		return 0;
 	}
 
 	public function listForUser( UserIdentity $user ) {}

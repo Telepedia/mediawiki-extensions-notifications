@@ -7,6 +7,7 @@ use MediaWiki\Page\Event\PageDeletedEvent;
 use MediaWiki\Page\Event\PageDeletedListener;
 use MediaWiki\Page\Event\PageLatestRevisionChangedEvent;
 use MediaWiki\Page\Event\PageLatestRevisionChangedListener;
+use MediaWiki\Storage\EditResult;
 use MediaWiki\Storage\PageUpdateCauses;
 
 class PageEventIngress extends DomainEventIngress implements
@@ -28,7 +29,7 @@ class PageEventIngress extends DomainEventIngress implements
 	}
 
 	/**
-	 * Restore notifications for undeleted pages
+	 * Restore notifications for undeleted pages, and let users know when their edits are reverted
 	 * @param PageLatestRevisionChangedEvent $event
 	 * @return void
 	 */
@@ -37,6 +38,29 @@ class PageEventIngress extends DomainEventIngress implements
 		// was due to an undeletion
 		if ( $event->hasCause( PageUpdateCauses::CAUSE_UNDELETE ) ) {
 			$this->controller->onPageUndeleted( $event->getPageId() );
+			return;
+		}
+
+		$editResult = $event->getEditResult();
+
+		if ( $editResult === null || $editResult->isNullEdit() ) {
+			return;
+		}
+		
+		$method = match ( $editResult->getRevertMethod() ) {
+			EditResult::REVERT_UNDO => 'undo',
+			EditResult::REVERT_ROLLBACK => 'rollback',
+			default => null,
+		};
+
+		if ( $method !== null ) {
+			$this->controller->onRevert(
+				$event->getLatestRevisionAfter(),
+				$event->getAuthor(),
+				$editResult->getOldestRevertedRevisionId(),
+				$editResult->getNewestRevertedRevisionId(),
+				$method
+			);
 		}
 	}
 }
