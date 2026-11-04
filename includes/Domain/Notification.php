@@ -23,7 +23,7 @@ readonly class Notification {
 		public ?string $body = null,
 		public ?UserIdentity $agent = null,
 		public ?PageIdentity $page = null,
-		public array $links,
+		public array $links = [],
 		public ?string $groupKey = null,
 		public ?int $id = null,
 		public ?string $created = null,
