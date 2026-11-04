@@ -46,7 +46,7 @@ readonly class Notification {
 			icon: $row->notif_icon,
 			body: $row->notif_body,
 			agent: $row->notif_agent_name !== null
-				? new UserIdentityValue( (int)$row->notif_agent, $row->notif_agent_Name ) : null,
+				? new UserIdentityValue( (int)$row->notif_agent_id, $row->notif_agent_name ) : null,
 			page: $row->notif_page_id !== null
 				? new PageIdentityValue(
 					(int)$row->notif_page_id,

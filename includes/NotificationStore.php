@@ -5,6 +5,7 @@ namespace Telepedia\Extensions\Beacon;
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 use Telepedia\Extensions\Beacon\Domain\Notification;
+use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
 
@@ -22,13 +23,43 @@ class NotificationStore {
 	) {}
 
 	/**
-	 * Not implemented yet, but return 0 for the meantime whilst
-	 * we're testing so other functions can run
+	 * Store a new notification
 	 * @param Notification $notification
-	 * @return int
+	 * @return int the new notification ID
 	 */
 	public function store( Notification $notification ): int {
-		return 0;
+		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+		$dbw->newInsertQueryBuilder()
+			->insertInto( 'beacon_notifications' )
+			->row( [
+				'notif_user' => $notification->recipient->getId(),
+				'notif_wiki' => $notification->wiki->id,
+				'notif_wiki_name' => $notification->wiki->name,
+				'notif_type' => $notification->type,
+				'notif_category' => $notification->category,
+				'notif_agent_id' => $notification->agent?->getId(),
+				'notif_agent_name' => $notification->agent?->getName(),
+				'notif_page_id' => $notification->page?->getId(),
+				'notif_page_ns' => $notification->page?->getNamespace(),
+				'notif_page_title' => $notification->page?->getDBkey(),
+				'notif_url' => $notification->url,
+				'notif_header' => $notification->header,
+				'notif_body' => $notification->body,
+				'notif_language' => $notification->language,
+				'notif_icon' => $notification->icon,
+				'notif_links' => NotificationLink::listToJson( $notification->links ),
+				'notif_group_key' => $notification->groupKey,
+				'notif_created' => $dbw->timestamp( $notification->created ?? false ),
+				'notif_read' => null,
+				'notif_hidden' => 0,
+			] )
+			->caller( __METHOD__ )
+			->execute();
+
+		$id = $dbw->insertId();
+		$this->invalidateUnreadCounts( [ $notification->recipient->getId() ] );
+
+		return $id;
 	}
 
 	public function listForUser( UserIdentity $user ) {}
