@@ -43,12 +43,53 @@
 				"PageDeleted",
 				"PageLatestRevisionChanged"
 			],
-			"class": "Telepedia\\Extensions\\Beacon\\Events\\PageEventIngress",
+			"class": "Telepedia\\Extensions\\Beacon\\Handlers\\PageVisibilityHandler",
 			"services": [
-				"Beacon.EventController"
+				"JobQueueGroup"
+			]
+		},
+		{
+			"events": [
+				"PageLatestRevisionChanged"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Handlers\\RevertHandler",
+			"services": [
+				"RevisionStore",
+				"TitleFactory",
+				"Beacon.NotificationSender"
+			]
+		},
+		{
+			"events": [
+				"PageLatestRevisionChanged"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Handlers\\UserJsEditHandler",
+			"services": [
+				"TitleFactory",
+				"UserIdentityLookup",
+				"UserIdentityUtils",
+				"Beacon.NotificationSender"
 			]
 		}
 	],
+	"attributes": {
+		"Beacon": {
+			"Types": {
+				"edited-other-users-js": {
+					"category": "edited-other-users-js",
+					"presenter": {
+						"class": "Telepedia\\Extensions\\Beacon\\Presentation\\UserJsEditPresenter"
+					}
+				},
+				"reverted": {
+					"category": "reverted",
+					"presenter": {
+						"class": "Telepedia\\Extensions\\Beacon\\Presentation\\RevertedPresenter"
+					}
+				}
+			}
+		}
+	},
 	"JobClasses": {
 		"BeaconHidePageNotificationsJob": {
 			"class": "Telepedia\\Extensions\\Beacon\\Jobs\\BeaconHidePageNotificationsJob",
