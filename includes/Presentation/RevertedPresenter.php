@@ -2,41 +2,26 @@
 
 namespace Telepedia\Extensions\Beacon\Presentation;
 
-use MediaWiki\Title\Title;
-use MediaWiki\User\UserIdentity;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Wikimedia\Message\MessageValue;
 
-class RevertedPresenter {
-
-	public function __construct(
-		private readonly RecipientFormatterFactory $formatterFactory,
-	) {}
+class RevertedPresenter implements NotificationPresenter {
 
 	/**
-	 * @param UserIdentity $recipient whose edit was reverted
-	 * @param UserIdentity $reverter who did the undo or rollback
-	 * @param Title $title the page
-	 * @param string $method 'undo' or 'rollback'
-	 * @param string $diffUrl link to the revert's diff
-	 * @param string|null $summary the revert's edit summary, if visible
+	 * @param RecipientFormatter $formatter
+	 * @param NotificationContext $context
 	 * @return RenderedNotification
 	 */
-	public function present(
-		UserIdentity $recipient,
-		UserIdentity $reverter,
-		Title $title,
-		string $method,
-		string $diffUrl,
-		?string $summary
-	): RenderedNotification {
-		$formatter = $this->formatterFactory->newForUser( $recipient );
+	public function present( RecipientFormatter $formatter, NotificationContext $context ): RenderedNotification {
+		$title = $context->title;
+		$diffUrl = $context->extra['diffUrl'];
+		$summary = $context->extra['summary'] ?? null;
 
 		return new RenderedNotification(
 			language: $formatter->language,
 			header: $formatter->format(
-				MessageValue::new( "beacon-notification-reverted-$method" )
-					->plaintextParams( $reverter->getName(), $title->getPrefixedText() )
+				MessageValue::new( 'beacon-notification-reverted-' . $context->extra['method'] )
+					->plaintextParams( $context->agent->getName(), $title->getPrefixedText() )
 			),
 			url: $diffUrl,
 			icon: 'revert',

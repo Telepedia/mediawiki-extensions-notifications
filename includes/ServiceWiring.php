@@ -2,19 +2,21 @@
 
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Registration\ExtensionRegistry;
 use Telepedia\Extensions\Beacon\Domain\SourceWiki;
-use Telepedia\Extensions\Beacon\Events\EventController;
+use Telepedia\Extensions\Beacon\NotificationSender;
 use Telepedia\Extensions\Beacon\NotificationStore;
-use Telepedia\Extensions\Beacon\Notifiers\RevertNotifier;
+use Telepedia\Extensions\Beacon\NotificationTypeRegistry;
 use Telepedia\Extensions\Beacon\Presentation\RecipientFormatterFactory;
-use Telepedia\Extensions\Beacon\Presentation\RevertedPresenter;
 
 /** @phpcs-require-sorted-array */
 return [
-	'Beacon.EventController' => static function ( MediaWikiServices $services ): EventController {
-		return new EventController(
-			$services->getJobQueueGroup(),
-			$services->getService( 'Beacon.RevertNotifier' )
+	'Beacon.NotificationSender' => static function ( MediaWikiServices $services ): NotificationSender {
+		return new NotificationSender(
+			$services->getService( 'Beacon.NotificationTypeRegistry' ),
+			$services->getService( 'Beacon.RecipientFormatterFactory' ),
+			$services->getService( 'Beacon.NotificationStore' ),
+			SourceWiki::newFromConfig( $services->getMainConfig() )
 		);
 	},
 
@@ -26,26 +28,17 @@ return [
 		);
 	},
 
+	'Beacon.NotificationTypeRegistry' => static function ( MediaWikiServices $services ): NotificationTypeRegistry {
+		return new NotificationTypeRegistry(
+			$services->getObjectFactory(),
+			ExtensionRegistry::getInstance()->getAttribute( 'BeaconTypes' )
+		);
+	},
+
 	'Beacon.RecipientFormatterFactory' => static function ( MediaWikiServices $services ): RecipientFormatterFactory {
 		return new RecipientFormatterFactory(
 			$services->getUserOptionsLookup(),
 			$services->getMessageFormatterFactory()
-		);
-	},
-
-	'Beacon.RevertedPresenter' => static function ( MediaWikiServices $services ): RevertedPresenter {
-		return new RevertedPresenter(
-			$services->getService( 'Beacon.RecipientFormatterFactory' )
-		);
-	},
-
-	'Beacon.RevertNotifier' => static function ( MediaWikiServices $services ): RevertNotifier {
-		return new RevertNotifier(
-			$services->getRevisionStore(),
-			$services->getTitleFactory(),
-			$services->getService( 'Beacon.RevertedPresenter' ),
-			$services->getService( 'Beacon.NotificationStore' ),
-			SourceWiki::newFromConfig( $services->getMainConfig() )
 		);
 	},
 ];
