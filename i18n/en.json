@@ -7,6 +7,7 @@
 	"beacon-desc": "Notification service for MediaWiki",
 	"beacon-notification-reverted-undo": "{{GENDER:$1|$1}} reverted your edit to $2.",
 	"beacon-notification-reverted-rollback": "{{GENDER:$1|$1}} rolled back your edit to $2.",
+	"beacon-notification-edited-user-js": "{{GENDER:$1|$1}} edited your JavaScript page $2.",
 	"beacon-notification-link-view-changes": "View changes",
 	"beacon-notification-link-page": "View page"
 }

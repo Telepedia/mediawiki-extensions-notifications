@@ -16,7 +16,7 @@ class PageEventIngress extends DomainEventIngress implements
 {
 
 	public function __construct(
-		private readonly EventController $controller
+		private readonly EventController $controller,
 	) {}
 
 	/**
@@ -47,6 +47,8 @@ class PageEventIngress extends DomainEventIngress implements
 			return;
 		}
 		
+		$this->controller->onEdit( $event->getLatestRevisionAfter(), $event->getAuthor() );
+
 		$method = match ( $editResult->getRevertMethod() ) {
 			EditResult::REVERT_UNDO => 'undo',
 			EditResult::REVERT_ROLLBACK => 'rollback',

@@ -6,15 +6,18 @@ use Telepedia\Extensions\Beacon\Domain\SourceWiki;
 use Telepedia\Extensions\Beacon\Events\EventController;
 use Telepedia\Extensions\Beacon\NotificationStore;
 use Telepedia\Extensions\Beacon\Notifiers\RevertNotifier;
+use Telepedia\Extensions\Beacon\Notifiers\UserJsEditNotifier;
 use Telepedia\Extensions\Beacon\Presentation\RecipientFormatterFactory;
 use Telepedia\Extensions\Beacon\Presentation\RevertedPresenter;
+use Telepedia\Extensions\Beacon\Presentation\UserJsEditPresenter;
 
 /** @phpcs-require-sorted-array */
 return [
 	'Beacon.EventController' => static function ( MediaWikiServices $services ): EventController {
 		return new EventController(
 			$services->getJobQueueGroup(),
-			$services->getService( 'Beacon.RevertNotifier' )
+			$services->getService( 'Beacon.RevertNotifier' ),
+			$services->getService( 'Beacon.UserJsEditNotifier' )
 		);
 	},
 
@@ -46,6 +49,23 @@ return [
 			$services->getService( 'Beacon.RevertedPresenter' ),
 			$services->getService( 'Beacon.NotificationStore' ),
 			SourceWiki::newFromConfig( $services->getMainConfig() )
+		);
+	},
+
+	'Beacon.UserJsEditNotifier' => static function ( MediaWikiServices $services ): UserJsEditNotifier {
+		return new UserJsEditNotifier(
+			$services->getTitleFactory(),
+			$services->getUserIdentityLookup(),
+			$services->getUserIdentityUtils(),
+			$services->getService( 'Beacon.UserJsEditPresenter' ),
+			$services->getService( 'Beacon.NotificationStore' ),
+			SourceWiki::newFromConfig( $services->getMainConfig() )
+		);
+	},
+
+	'Beacon.UserJsEditPresenter' => static function ( MediaWikiServices $services ): UserJsEditPresenter {
+		return new UserJsEditPresenter(
+			$services->getService( 'Beacon.RecipientFormatterFactory' )
 		);
 	},
 ];

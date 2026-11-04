@@ -9,13 +9,25 @@ use MediaWiki\User\UserIdentity;
 use MediaWiki\WikiMap\WikiMap;
 use Telepedia\Extensions\Beacon\Jobs\BeaconHidePageNotificationsJob;
 use Telepedia\Extensions\Beacon\Notifiers\RevertNotifier;
+use Telepedia\Extensions\Beacon\Notifiers\UserJsEditNotifier;
 
 readonly class EventController {
 
 	public function __construct(
 		private JobQueueGroup $jobQueueGroup,
 		private RevertNotifier $revertNotifier,
+		private UserJsEditNotifier $userJsEditNotifier,
 	) {}
+
+	/**
+	 * Notifications about any real (non-null) edit
+	 * @param RevisionRecord $revision the revision the edit created
+	 * @param UserIdentity $author who made the edit
+	 * @return void
+	 */
+	public function onEdit( RevisionRecord $revision, UserIdentity $author ): void {
+		$this->userJsEditNotifier->notify( $revision, $author );
+	}
 
 	/**
 	 * When a page is deleted, hide all of the notifications for that page
