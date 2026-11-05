@@ -19,7 +19,20 @@
 	"AutoloadNamespaces": {
 		"Telepedia\\Extensions\\Beacon\\": "includes/"
 	},
-	"ResourceModules": {},
+	"ResourceModules": {
+		"ext.beacon.styles": {
+			"styles": [
+				"badge.less"
+			],
+			"skinStyles": {
+				"timeless": [
+					"skins/timeless.less"
+				]
+			},
+			"localBasePath": "resources/ext.beacon.styles",
+			"remoteExtPath": "Beacon/resources/ext.beacon.styles"
+		}
+	},
 	"DatabaseVirtualDomains": [
 		"virtual-beacon"
 	],
@@ -29,10 +42,14 @@
 	"HookHandlers": {
 		"schema": {
 			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SchemaHooks"
+		},
+		"skin": {
+			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SkinHooks"
 		}
 	},
 	"Hooks": {
-		"LoadExtensionSchemaUpdates": "schema"
+		"LoadExtensionSchemaUpdates": "schema",
+		"SkinTemplateNavigation::Universal": "skin"
 	},
 	"ServiceWiringFiles": [
 		"includes/ServiceWiring.php"

@@ -5,6 +5,7 @@
 		]
 	},
 	"beacon-desc": "Notification service for MediaWiki",
+	"beacon-notifications-badge": "Notifications ($1)",
 	"beacon-notification-reverted-undo": "{{GENDER:$1|$1}} reverted your edit to $2.",
 	"beacon-notification-reverted-rollback": "{{GENDER:$1|$1}} rolled back your edit to $2.",
 	"beacon-notification-edited-user-js": "{{GENDER:$1|$1}} edited your JavaScript page $2.",

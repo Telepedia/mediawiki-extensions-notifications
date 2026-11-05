@@ -1,0 +1,41 @@
+@timeless-mobile-width: 850px;
+@timeless-desktop-small-floor: 851px;
+
+@media screen {
+	#personal-extra {
+		white-space: nowrap;
+
+		ul {
+			list-style: none;
+			padding: 0;
+			margin: 0.5em;
+		}
+
+		li {
+			margin: 0 0.25em;
+			display: inline-block;
+		}
+	}
+
+	@media ( min-width: @timeless-desktop-small-floor ) {
+		div#personal {
+			padding-left: 0;
+		}
+
+		#personal-extra {
+			float: left;
+		}
+	}
+
+	@media ( max-width: @timeless-mobile-width ) {
+		#personal-extra {
+			position: absolute;
+			top: 0.9em;
+			right: 7.5em;
+
+			li {
+				margin-right: 0.75em;
+			}
+		}
+	}
+}
