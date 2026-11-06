@@ -59,9 +59,9 @@ class DismissNotificationHandler extends SimpleHandler {
 	 */
 	public function getBodyParamSettings(): array {
 		return [
-			'commentId' => [
+			'ids' => [
 				self::PARAM_SOURCE => 'body',
-				ParamValidator::PARAM_TYPE => 'integer',
+				ParamValidator::PARAM_TYPE => 'array',
 				ParamValidator::PARAM_REQUIRED => true,
 				ArrayDef::PARAM_SCHEMA => [
 					'type' => 'array',
