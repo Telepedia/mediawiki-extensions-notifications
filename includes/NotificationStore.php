@@ -2,12 +2,15 @@
 
 namespace Telepedia\Extensions\Beacon;
 
+use JsonException;
+use MediaWiki\User\CentralId\CentralIdLookup;
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
+use Wikimedia\Rdbms\SelectQueryBuilder;
 
 class NotificationStore {
 
@@ -18,6 +21,7 @@ class NotificationStore {
 
 	public function __construct(
 		private readonly IConnectionProvider $connectionProvider,
+		private readonly CentralIdLookup $centralIdLookup,
 		private readonly WANObjectCache $wanCache,
 		private readonly LoggerInterface $logger,
 	) {}
@@ -26,6 +30,7 @@ class NotificationStore {
 	 * Store a new notification
 	 * @param Notification $notification
 	 * @return int the new notification ID
+	 * @throws JsonException
 	 */
 	public function store( Notification $notification ): int {
 		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
@@ -67,9 +72,28 @@ class NotificationStore {
 	 * @param UserIdentity $user
 	 * @return array
 	 * @TODO: do we want to potentially return all noitifcations here if the user is on S:Notifications?
+	 * @throws JsonException
 	 */
 	public function listForUser( UserIdentity $user ): array {
-		return [];
+		$dbr = $this->connectionProvider->getReplicaDatabase( self::DOMAIN );
+
+		$query = $dbr->newSelectQueryBuilder()
+			->select( '*' )
+			->from( 'beacon_notifications' )
+			->where( [
+				'notif_user' => $this->getCentralId( $user ),
+				'notif_hidden' => 0,
+			] )
+			->orderBy( 'notif_id', SelectQueryBuilder::SORT_DESC )
+			->caller( __METHOD__ );
+
+		$notifications = [];
+
+		foreach ( $query->fetchResultSet() as $row ) {
+			$notifications[] = Notification::newFromRow( $row );
+		}
+
+		return $notifications;
 	}
 
 	/**
@@ -88,7 +112,7 @@ class NotificationStore {
 			->update( 'beacon_notifications' )
 			->set( [ 'notif_read' => $dbw->timestamp() ] )
 			->where( [
-				'notif_user' => $user->getId(),
+				'notif_user' => $this->getCentralId( $user ),
 				'notif_id' => $ids,
 				'notif_read' => null
 			] )
@@ -187,6 +211,10 @@ class NotificationStore {
 	 */
 	public function purge(): int {
 		return 0;
+	}
+
+	private function getCentralId( UserIdentity $user ): int {
+		return $this->centralIdLookup->centralIdFromLocalUser( $user, CentralIdLookup::AUDIENCE_RAW );
 	}
 
 }

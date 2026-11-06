@@ -23,6 +23,7 @@ return [
 	'Beacon.NotificationStore' => static function ( MediaWikiServices $services ): NotificationStore {
 		return new NotificationStore(
 			$services->getConnectionProvider(),
+			$services->getCentralIdLookup(),
 			$services->getWANObjectCache(),
 			LoggerFactory::getInstance( 'Beacon' )
 		);
