@@ -2,12 +2,15 @@
 
 namespace Telepedia\Extensions\Beacon;
 
+use JsonException;
+use MediaWiki\User\CentralId\CentralIdLookup;
 use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
+use Wikimedia\Rdbms\SelectQueryBuilder;
 
 class NotificationStore {
 
@@ -18,6 +21,7 @@ class NotificationStore {
 
 	public function __construct(
 		private readonly IConnectionProvider $connectionProvider,
+		private readonly CentralIdLookup $centralIdLookup,
 		private readonly WANObjectCache $wanCache,
 		private readonly LoggerInterface $logger,
 	) {}
@@ -26,6 +30,7 @@ class NotificationStore {
 	 * Store a new notification
 	 * @param Notification $notification
 	 * @return int the new notification ID
+	 * @throws JsonException
 	 */
 	public function store( Notification $notification ): int {
 		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
@@ -62,10 +67,37 @@ class NotificationStore {
 		return $id;
 	}
 
-	public function listForUser( UserIdentity $user ) {}
+	/**
+	 * List all of the notifications for this user
+	 * @param UserIdentity $user
+	 * @return array
+	 * @TODO: do we want to potentially return all noitifcations here if the user is on S:Notifications?
+	 * @throws JsonException
+	 */
+	public function listForUser( UserIdentity $user ): array {
+		$dbr = $this->connectionProvider->getReplicaDatabase( self::DOMAIN );
+
+		$query = $dbr->newSelectQueryBuilder()
+			->select( '*' )
+			->from( 'beacon_notifications' )
+			->where( [
+				'notif_user' => $this->getCentralId( $user ),
+				'notif_hidden' => 0,
+			] )
+			->orderBy( 'notif_id', SelectQueryBuilder::SORT_DESC )
+			->caller( __METHOD__ );
+
+		$notifications = [];
+
+		foreach ( $query->fetchResultSet() as $row ) {
+			$notifications[] = Notification::newFromRow( $row );
+		}
+
+		return $notifications;
+	}
 
 	/**
-	 * Mark a notification – or all notifications, as read
+	 * Mark a notification or series of notifications as read
 	 * @param UserIdentity $user the user we're working with
 	 * @param array $ids the IDs of the notifications to mark as read
 	 * @return int the number of rows affected
@@ -80,7 +112,7 @@ class NotificationStore {
 			->update( 'beacon_notifications' )
 			->set( [ 'notif_read' => $dbw->timestamp() ] )
 			->where( [
-				'notif_user' => $user->getId(),
+				'notif_user' => $this->getCentralId( $user ),
 				'notif_id' => $ids,
 				'notif_read' => null
 			] )
@@ -179,6 +211,39 @@ class NotificationStore {
 	 */
 	public function purge(): int {
 		return 0;
+	}
+
+	/**
+	 * Get the central id of this local user (for $wgSharedDB this will be the same as the local user, but alas
+	 * we use the central id so we don't need to change this in the future if we switch)
+	 * @param UserIdentity $user
+	 * @return int
+	 */
+	private function getCentralId( UserIdentity $user ): int {
+		return $this->centralIdLookup->centralIdFromLocalUser( $user, CentralIdLookup::AUDIENCE_RAW );
+	}
+
+	/**
+	 * Mark all notifications up to a given ID as read. We purposefully don't just mark everything as read as
+	 * another notification may have come in between them last refreshing the notifications and this call being made
+	 * @param UserIdentity $user
+	 * @param int $upToId the newest notification ID the user has seen (taken from the frontend notification dropdown)
+	 * @return int the number of rows changed
+	 */
+	public function markAllRead( UserIdentity $user, int $upToId ): int {
+		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+		$dbw->newUpdateQueryBuilder()
+			->update( 'beacon_notifications' )
+			->set( [ 'notif_read' => $dbw->timestamp() ] )
+			->where( [
+				'notif_user' => $this->getCentralId( $user ),
+				'notif_read' => null,
+				$dbw->expr( 'notif_id', '<=', $upToId ),
+			] )
+			->caller( __METHOD__ )
+			->execute();
+
+		return $dbw->affectedRows();
 	}
 
 }

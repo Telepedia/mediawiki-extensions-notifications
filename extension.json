@@ -132,6 +132,41 @@
 			}
 		}
 	},
+	"RestRoutes": [
+		{
+			"path": "/beacon/v1/notifications",
+			"method": [
+				"GET"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Rest\\GetNotificationHandler",
+			"services": [
+				"Beacon.NotificationStore",
+				"UserIdentityUtils"
+			]
+		},
+		{
+			"path": "/beacon/v1/notifications/read",
+			"method": [
+				"POST"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Rest\\DismissNotificationHandler",
+			"services": [
+				"Beacon.NotificationStore",
+				"UserIdentityUtils"
+			]
+		},
+		{
+			"path": "/beacon/v1/notifications/read-all",
+			"method": [
+				"POST"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Rest\\DismissAllHandler",
+			"services": [
+				"Beacon.NotificationStore",
+				"UserIdentityUtils"
+			]
+		}
+	],
 	"JobClasses": {
 		"BeaconHidePageNotificationsJob": {
 			"class": "Telepedia\\Extensions\\Beacon\\Jobs\\BeaconHidePageNotificationsJob",
