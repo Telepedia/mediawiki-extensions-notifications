@@ -213,8 +213,37 @@ class NotificationStore {
 		return 0;
 	}
 
+	/**
+	 * Get the central id of this local user (for $wgSharedDB this will be the same as the local user, but alas
+	 * we use the central id so we don't need to change this in the future if we switch)
+	 * @param UserIdentity $user
+	 * @return int
+	 */
 	private function getCentralId( UserIdentity $user ): int {
 		return $this->centralIdLookup->centralIdFromLocalUser( $user, CentralIdLookup::AUDIENCE_RAW );
+	}
+
+	/**
+	 * Mark all notifications up to a given ID as read. We purposefully don't just mark everything as read as
+	 * another notification may have come in between them last refreshing the notifications and this call being made
+	 * @param UserIdentity $user
+	 * @param int $upToId the newest notification ID the user has seen (taken from the frontend notification dropdown)
+	 * @return int the number of rows changed
+	 */
+	public function markAllRead( UserIdentity $user, int $upToId ): int {
+		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+		$dbw->newUpdateQueryBuilder()
+			->update( 'beacon_notifications' )
+			->set( [ 'notif_read' => $dbw->timestamp() ] )
+			->where( [
+				'notif_user' => $this->getCentralId( $user ),
+				'notif_read' => null,
+				$dbw->expr( 'notif_id', '<=', $upToId ),
+			] )
+			->caller( __METHOD__ )
+			->execute();
+
+		return $dbw->affectedRows();
 	}
 
 }
