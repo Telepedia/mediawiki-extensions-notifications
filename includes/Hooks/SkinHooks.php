@@ -33,5 +33,6 @@ class SkinHooks implements SkinTemplateNavigation__UniversalHook {
 		];
 
 		$sktemplate->getOutput()->addModuleStyles( 'ext.beacon.styles' );
+		$sktemplate->getOutput()->addModules( 'ext.beacon.init' );
 	}
 }

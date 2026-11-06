@@ -31,6 +31,31 @@
 			},
 			"localBasePath": "resources/ext.beacon.styles",
 			"remoteExtPath": "Beacon/resources/ext.beacon.styles"
+		},
+		"ext.beacon.init": {
+			"packageFiles": [
+				"init.js"
+			],
+			"localBasePath": "resources/ext.beacon.init",
+			"remoteExtPath": "Beacon/resources/ext.beacon.init"
+		},
+		"ext.beacon.popover": {
+			"packageFiles": [
+				"init.js",
+				"notifications.js",
+				"components/App.vue",
+				"components/NotificationItem.vue"
+			],
+			"dependencies": [
+				"vue",
+				"pinia",
+				"mediawiki.api"
+			],
+			"codexComponents": [
+				"CdxPopover"
+			],
+			"localBasePath": "resources/ext.beacon.popover",
+			"remoteExtPath": "Beacon/resources/ext.beacon.popover"
 		}
 	},
 	"DatabaseVirtualDomains": [
