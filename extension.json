@@ -101,6 +101,17 @@
 				"Beacon.NotificationStore",
 				"UserIdentityUtils"
 			]
+		},
+		{
+			"path": "/beacon/v1/notifications/read",
+			"method": [
+				"POST"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Rest\\DismissNotificationHandler",
+			"services": [
+				"Beacon.NotificationStore",
+				"UserIdentityUtils"
+			]
 		}
 	],
 	"JobClasses": {

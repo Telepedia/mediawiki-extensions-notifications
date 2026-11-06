@@ -97,7 +97,7 @@ class NotificationStore {
 	}
 
 	/**
-	 * Mark a notification – or all notifications, as read
+	 * Mark a notification or series of notifications as read
 	 * @param UserIdentity $user the user we're working with
 	 * @param array $ids the IDs of the notifications to mark as read
 	 * @return int the number of rows affected
