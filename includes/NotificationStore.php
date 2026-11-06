@@ -62,7 +62,15 @@ class NotificationStore {
 		return $id;
 	}
 
-	public function listForUser( UserIdentity $user ) {}
+	/**
+	 * List all of the notifications for this user
+	 * @param UserIdentity $user
+	 * @return array
+	 * @TODO: do we want to potentially return all noitifcations here if the user is on S:Notifications?
+	 */
+	public function listForUser( UserIdentity $user ): array {
+		return [];
+	}
 
 	/**
 	 * Mark a notification – or all notifications, as read

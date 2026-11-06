@@ -90,6 +90,19 @@
 			}
 		}
 	},
+	"RestRoutes": [
+		{
+			"path": "/beacon/v1/notifications",
+			"method": [
+				"GET"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Rest\\GetNotificationHandler",
+			"services": [
+				"Beacon.NotificationStore",
+				"UserIdentityUtils"
+			]
+		}
+	],
 	"JobClasses": {
 		"BeaconHidePageNotificationsJob": {
 			"class": "Telepedia\\Extensions\\Beacon\\Jobs\\BeaconHidePageNotificationsJob",
