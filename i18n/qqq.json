@@ -8,6 +8,7 @@
 	"beacon-popover-title": "Heading at the top of the notifications popover that opens from the bell.\n{{Identical|Notifications}}",
 	"beacon-popover-empty": "Shown in the notifications popover when the user has no notifications.",
 	"beacon-popover-unread": "Tooltip on the dot marking an unread notification in the notifications popover.\n{{Identical|Unread}}",
+	"beacon-popover-mark-read": "Tooltip and accessible label of the dot button on an unread notification in the notifications popover, which marks it as read.\n{{Identical|Mark as read}}",
 	"beacon-popover-all": "Label of the button at the bottom of the notifications popover that goes to [[Special:Notifications]].\n{{Identical|All notifications}}",
 	"beacon-popover-preferences": "Accessible label and tooltip of the icon-only button at the bottom of the notifications popover that goes to the notification preferences.",
 	"beacon-badge-count-max": "Shown in the notifications badge instead of the count when the user has more unread notifications than are counted.\n\nParameters:\n* $1 - the most notifications that are counted (99)",
