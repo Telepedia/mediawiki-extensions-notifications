@@ -56,7 +56,8 @@
 			"dependencies": [
 				"vue",
 				"pinia",
-				"mediawiki.api"
+				"mediawiki.api",
+				"mediawiki.DateFormatter"
 			],
 			"codexComponents": [
 				"CdxPopover"

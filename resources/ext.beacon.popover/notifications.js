@@ -24,7 +24,7 @@ const useNotificationStore = defineStore( 'beacon-notifications', {
 
 			this.isLoading = true;
 			this.error = null;
-			inFlight = new mw.Rest().get( '/beacon/v1/notifications' )
+			inFlight = Promise.resolve( new mw.Rest().get( '/beacon/v1/notifications' ) )
 				.then( ( data ) => {
 					this.unreadCount = data.unreadCount;
 					this.notifications = data.notifications;

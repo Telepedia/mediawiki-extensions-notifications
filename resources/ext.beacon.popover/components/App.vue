@@ -28,6 +28,11 @@
 					{{ $i18n( 'beacon-popover-empty' ).text() }}
 				</p>
 				<ul v-else class="beacon-card__list">
+					<notification-item
+						v-for="notification in store.notifications"
+						:key="notification.id"
+						:notification="notification"
+					></notification-item>
 				</ul>
 			</div>
 		</div>
@@ -38,10 +43,12 @@
 const { defineComponent } = require( 'vue' );
 const { useNotificationStore } = require( '../notifications.js' );
 const { CdxPopover } = require( '../codex.js' );
+const NotificationItem = require( './NotificationItem.vue' );
 module.exports = defineComponent({
 	name: 'Notifications',
 	components: {
-		CdxPopover
+		CdxPopover,
+		NotificationItem
 	},
 	props: {
 		anchor: { type: HTMLElement, required: true }
@@ -61,7 +68,8 @@ module.exports = defineComponent({
 @import 'mediawiki.skin.variables.less';
 
 .cdx-popover.beacon-popover {
-	width: 22rem;
+	// copy the same width as echo, but we may need to change this as it looks a bit funky
+	width: 31.25rem;
 	max-width: calc( 100vw - 1rem );
 	max-height: calc( 100vh - 4rem );
 	padding: 0;
