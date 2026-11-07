@@ -50,6 +50,9 @@
 				"components/App.vue",
 				"components/NotificationItem.vue"
 			],
+			"styles": [
+				"icons.less"
+			],
 			"dependencies": [
 				"vue",
 				"pinia",
@@ -60,7 +63,8 @@
 			],
 			"messages": [
 				"beacon-popover-title",
-				"beacon-popover-empty"
+				"beacon-popover-empty",
+				"beacon-popover-unread"
 			],
 			"localBasePath": "resources/ext.beacon.popover",
 			"remoteExtPath": "Beacon/resources/ext.beacon.popover"
@@ -124,6 +128,7 @@
 	],
 	"attributes": {
 		"Beacon": {
+			"Icons": {},
 			"Types": {
 				"edited-other-users-js": {
 					"category": "edited-other-users-js",
