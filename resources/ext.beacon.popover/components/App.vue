@@ -32,6 +32,7 @@
 						v-for="notification in store.notifications"
 						:key="notification.id"
 						:notification="notification"
+						@mark-read="markNotificationRead"
 					></notification-item>
 				</ul>
 			</div>
@@ -75,13 +76,18 @@ module.exports = defineComponent({
 	setup() {
 		const store = useNotificationStore();
 
+		function markNotificationRead( id ) {
+			console.log( id );
+		}
+
 		return {
 			store,
 			placement: 'bottom-end',
 			allUrl: mw.util.getUrl( 'Special:Notifications' ),
 			preferencesUrl: mw.util.getUrl( 'Special:Preferences' ) + '#mw-prefsection-beacon',
 			cdxIconHistory,
-			cdxIconSettings
+			cdxIconSettings,
+			markNotificationRead
 		};
 	}
 } );

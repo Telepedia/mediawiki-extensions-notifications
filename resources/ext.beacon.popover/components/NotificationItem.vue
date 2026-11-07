@@ -30,11 +30,14 @@
 				>{{ relativeTime }}</time>
 			</span>
 		</span>
-		<span
+		<button
 			v-if="isUnread"
+			type="button"
 			class="beacon-item__dot"
-			:title="$i18n( 'beacon-popover-unread' ).text()"
-		></span>
+			:title="$i18n( 'beacon-popover-mark-read' ).text()"
+			:aria-label="$i18n( 'beacon-popover-mark-read' ).text()"
+			@click="$emit( 'mark-read', notification.id )"
+		></button>
 	</li>
 </template>
 
@@ -58,6 +61,7 @@ module.exports = defineComponent( {
 	props: {
 		notification: { type: Object, required: true }
 	},
+	emits: [ 'mark-read' ],
 	setup( props ) {
 		const created = computed( () => new Date( props.notification.created ) );
 
@@ -159,12 +163,36 @@ module.exports = defineComponent( {
 	}
 
 	&__dot {
+		position: relative;
+		z-index: 1;
+		display: flex;
 		flex-shrink: 0;
-		width: @spacing-50;
-		height: @spacing-50;
-		margin-top: @spacing-35;
+		align-items: center;
+		justify-content: center;
+		width: @size-125;
+		height: @size-125;
+		margin: 0;
+		padding: 0;
+		border: 0;
 		border-radius: @border-radius-circle;
-		background-color: @background-color-progressive;
+		background-color: transparent;
+		cursor: pointer;
+
+		&::before {
+			content: '';
+			width: @spacing-50;
+			height: @spacing-50;
+			border-radius: @border-radius-circle;
+			background-color: @background-color-progressive;
+		}
+
+		&:hover {
+			background-color: @background-color-progressive-subtle--hover;
+		}
+
+		&:focus-visible {
+			outline: @outline-base--focus;
+		}
 	}
 
 	&--unread &__header {
