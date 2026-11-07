@@ -97,6 +97,57 @@ class NotificationStore {
 	}
 
 	/**
+	 * Get how many unread notifications the user has, cached until invalidateUnreadCounts() is called for them.
+	 * We stop counting at MAX_UNREAD_COUNT + 1 so that a user with thousands of notifications doesn't cost us
+	 * a big scan on every page view
+	 * @param UserIdentity $user
+	 * @return int between 0 and MAX_UNREAD_COUNT + 1
+	 */
+	public function getUnreadCount( UserIdentity $user ): int {
+		$centralId = $this->getCentralId( $user );
+		if ( !$centralId ) {
+			return 0;
+		}
+
+		$checkKey = $this->getUnreadCountCheckKey( $centralId );
+
+		return (int)$this->wanCache->getWithSetCallback(
+			$this->wanCache->makeGlobalKey( 'beacon-unread-count-value', $centralId ),
+			ExpirationAwareness::TTL_DAY,
+			function () use ( $centralId ) {
+				$dbr = $this->connectionProvider->getReplicaDatabase( self::DOMAIN );
+
+				return $dbr->newSelectQueryBuilder()
+					->select( 'notif_id' )
+					->from( 'beacon_notifications' )
+					->where( [
+						'notif_user' => $centralId,
+						'notif_read' => null,
+						'notif_hidden' => 0,
+					] )
+					->limit( self::MAX_UNREAD_COUNT + 1 )
+					->caller( __METHOD__ )
+					->fetchRowCount();
+			},
+			[ 'checkKeys' => [ $checkKey ] ]
+		);
+	}
+
+	/**
+	 * When the user's unread count last changed, so page views can be revalidated
+	 * @param UserIdentity $user
+	 * @return float|null unix timestamp, or null if the user has no central ID
+	 */
+	public function getUnreadCountTouched( UserIdentity $user ): ?float {
+		$centralId = $this->getCentralId( $user );
+		if ( !$centralId ) {
+			return null;
+		}
+
+		return $this->wanCache->getCheckKeyTime( $this->getUnreadCountCheckKey( $centralId ) );
+	}
+
+	/**
 	 * Mark a notification or series of notifications as read
 	 * @param UserIdentity $user the user we're working with
 	 * @param array $ids the IDs of the notifications to mark as read

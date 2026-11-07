@@ -2,6 +2,9 @@ const { defineStore } = require( 'pinia' );
 
 let inFlight = null;
 
+// @note: mirrored from NotificationStore::MAX_UNREAD_COUNT, keep it in sync with that
+const MAX_UNREAD_COUNT = 99;
+
 const useNotificationStore = defineStore( 'beacon-notifications', {
 	state: () => ( {
 		notifications: null,
@@ -28,6 +31,7 @@ const useNotificationStore = defineStore( 'beacon-notifications', {
 				.then( ( data ) => {
 					this.unreadCount = data.unreadCount;
 					this.notifications = data.notifications;
+					this.syncBadge();
 				} )
 				.catch( ( err ) => {
 					this.error = err;
@@ -55,7 +59,24 @@ const useNotificationStore = defineStore( 'beacon-notifications', {
 		 * Sync the badge (rendered by PHP) with the actual count after changes have been made
 		 * such as marking notifications as read/unread
 		 */
-		syncBadge() {},
+		syncBadge() {
+			const badge = document.querySelector( '#pt-notifications-alert a' );
+			if ( !badge || this.unreadCount === null ) {
+				return;
+			}
+
+			const text = this.unreadCount > MAX_UNREAD_COUNT ?
+				mw.msg( 'beacon-badge-count-max', mw.language.convertNumber( MAX_UNREAD_COUNT ) ) :
+				mw.language.convertNumber( this.unreadCount );
+
+			badge.dataset.counterNum = this.unreadCount;
+			badge.dataset.counterText = text;
+
+			const label = badge.querySelector( 'span:not( [class] )' );
+			if ( label ) {
+				label.textContent = mw.msg( 'beacon-notifications-badge', text );
+			}
+		},
 
 		/**
 		 * Mark a notification that has already been marked as read, as unread again

@@ -33,14 +33,12 @@ class GetNotificationHandler extends SimpleHandler {
 		}
 
 		$notifications = $this->notificationStore->listForUser( $user );
-		// we could call the cache here to get this number but it should be the same so we can avoid
-		// work where it's not needed
-		$notificationCount = count( $notifications );
+		$unreadCount = $this->notificationStore->getUnreadCount( $user );
 
 		return $this->getResponseFactory()->createJson(
 			[
 				'notifications' => array_map( $this->serialize( ... ), $notifications ),
-				'unreadCount' => $notificationCount
+				'unreadCount' => $unreadCount
 			],
 		);
 	}
