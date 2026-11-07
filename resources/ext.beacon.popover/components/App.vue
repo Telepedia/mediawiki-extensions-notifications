@@ -35,6 +35,23 @@
 					></notification-item>
 				</ul>
 			</div>
+			<div class="beacon-card__footer">
+				<a
+					class="cdx-button cdx-button--fake-button cdx-button--fake-button--enabled beacon-card__all"
+					:href="allUrl"
+				>
+					<cdx-icon :icon="cdxIconHistory"></cdx-icon>
+					{{ $i18n( 'beacon-popover-all' ).text() }}
+				</a>
+				<a
+					class="cdx-button cdx-button--fake-button cdx-button--fake-button--enabled cdx-button--icon-only"
+					:href="preferencesUrl"
+					:title="$i18n( 'beacon-popover-preferences' ).text()"
+					:aria-label="$i18n( 'beacon-popover-preferences' ).text()"
+				>
+					<cdx-icon :icon="cdxIconSettings"></cdx-icon>
+				</a>
+			</div>
 		</div>
 	</cdx-popover>
 </template>
@@ -42,11 +59,13 @@
 <script>
 const { defineComponent } = require( 'vue' );
 const { useNotificationStore } = require( '../notifications.js' );
-const { CdxPopover } = require( '../codex.js' );
+const { CdxIcon, CdxPopover } = require( '../codex.js' );
+const { cdxIconHistory, cdxIconSettings } = require( '../icons.json' );
 const NotificationItem = require( './NotificationItem.vue' );
 module.exports = defineComponent({
 	name: 'Notifications',
 	components: {
+		CdxIcon,
 		CdxPopover,
 		NotificationItem
 	},
@@ -58,8 +77,12 @@ module.exports = defineComponent({
 
 		return {
 			store,
-			placement: 'bottom-end'
-		}
+			placement: 'bottom-end',
+			allUrl: mw.util.getUrl( 'Special:Notifications' ),
+			preferencesUrl: mw.util.getUrl( 'Special:Preferences' ) + '#mw-prefsection-beacon',
+			cdxIconHistory,
+			cdxIconSettings
+		};
 	}
 } );
 </script>
@@ -145,6 +168,18 @@ module.exports = defineComponent({
 
 	&__time.beacon-skeleton--line {
 		width: 30%;
+	}
+
+	&__footer {
+		display: flex;
+		flex-shrink: 0;
+		gap: @spacing-50;
+		padding: @spacing-75 @spacing-100;
+		border-top: @border-width-base @border-style-base @border-color-subtle;
+	}
+
+	&__all {
+		flex-grow: 1;
 	}
 
 	&__empty {

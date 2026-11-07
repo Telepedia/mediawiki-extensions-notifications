@@ -8,6 +8,8 @@
 	"beacon-popover-title": "Notifications",
 	"beacon-popover-empty": "You have no notifications.",
 	"beacon-popover-unread": "Unread",
+	"beacon-popover-all": "All notifications",
+	"beacon-popover-preferences": "Notification preferences",
 	"beacon-notifications-badge": "Notifications ($1)",
 	"beacon-notification-reverted-undo": "{{GENDER:$1|$1}} reverted your edit to $2.",
 	"beacon-notification-reverted-rollback": "{{GENDER:$1|$1}} rolled back your edit to $2.",

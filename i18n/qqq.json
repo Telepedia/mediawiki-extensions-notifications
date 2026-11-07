@@ -8,6 +8,8 @@
 	"beacon-popover-title": "Heading at the top of the notifications popover that opens from the bell.\n{{Identical|Notifications}}",
 	"beacon-popover-empty": "Shown in the notifications popover when the user has no notifications.",
 	"beacon-popover-unread": "Tooltip on the dot marking an unread notification in the notifications popover.\n{{Identical|Unread}}",
+	"beacon-popover-all": "Label of the button at the bottom of the notifications popover that goes to [[Special:Notifications]].\n{{Identical|All notifications}}",
+	"beacon-popover-preferences": "Accessible label and tooltip of the icon-only button at the bottom of the notifications popover that goes to the notification preferences.",
 	"beacon-notifications-badge": "Text of the notifications badge in the user links, shown next to the bell icon or instead of it in skins without icons.\n\nParameters:\n* $1 - number of unread notifications",
 	"beacon-notification-reverted-undo": "Header of the notification sent when someone reverts the recipient's edit. Plain text, rendered when the notification is created.\n\nParameters:\n* $1 - username of the user who undid the edit, also usable for GENDER\n* $2 - title of the page",
 	"beacon-notification-reverted-rollback": "Header of the notification sent when someone rolls back the recipient's edit. Plain text, rendered when the notification is created.\n\nParameters:\n* $1 - username of the user who rolled back the edit, also usable for GENDER\n* $2 - title of the page",

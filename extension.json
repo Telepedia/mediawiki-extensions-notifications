@@ -48,7 +48,15 @@
 				"init.js",
 				"notifications.js",
 				"components/App.vue",
-				"components/NotificationItem.vue"
+				"components/NotificationItem.vue",
+				{
+					"name": "icons.json",
+					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
+					"callbackParam": [
+						"cdxIconHistory",
+						"cdxIconSettings"
+					]
+				}
 			],
 			"styles": [
 				"icons.less"
@@ -57,15 +65,20 @@
 				"vue",
 				"pinia",
 				"mediawiki.api",
+				"mediawiki.util",
 				"mediawiki.DateFormatter"
 			],
 			"codexComponents": [
+				"CdxButton",
+				"CdxIcon",
 				"CdxPopover"
 			],
 			"messages": [
 				"beacon-popover-title",
 				"beacon-popover-empty",
-				"beacon-popover-unread"
+				"beacon-popover-unread",
+				"beacon-popover-all",
+				"beacon-popover-preferences"
 			],
 			"localBasePath": "resources/ext.beacon.popover",
 			"remoteExtPath": "Beacon/resources/ext.beacon.popover"
