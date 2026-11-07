@@ -9,7 +9,10 @@
 	"type": "other",
 	"version": "0.0.0",
 	"requires": {
-		"MediaWiki": ">= 1.47.0"
+		"MediaWiki": ">= 1.47.0",
+		"platform": {
+			"php": ">= 8.1"
+		}
 	},
 	"MessagesDirs": {
 		"Beacon": [
@@ -40,6 +43,7 @@
 			"remoteExtPath": "Beacon/resources/ext.beacon.init"
 		},
 		"ext.beacon.popover": {
+			"class": "MediaWiki\\ResourceLoader\\CodexModule",
 			"packageFiles": [
 				"init.js",
 				"notifications.js",
@@ -53,6 +57,9 @@
 			],
 			"codexComponents": [
 				"CdxPopover"
+			],
+			"messages": [
+				"beacon-popover-title"
 			],
 			"localBasePath": "resources/ext.beacon.popover",
 			"remoteExtPath": "Beacon/resources/ext.beacon.popover"

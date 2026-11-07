@@ -1,6 +1,6 @@
 const Vue = require( 'vue' );
 const Pinia = require( 'pinia' );
-
+const { useNotificationStore } = require( './notifications.js' );
 let app = null;
 
 function toggle( badge ) {
@@ -10,7 +10,11 @@ function toggle( badge ) {
 			.use( Pinia.createPinia() );
 		app.mount( mount );
 	}
-	// useNotificationsStore.toggle();
+	const store = useNotificationStore();
+	store.toggle();
+	if ( store.isOpen ) {
+		store.fetch();
+	}
 }
 
 module.exports = {

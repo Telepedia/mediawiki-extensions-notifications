@@ -1,6 +1,6 @@
 const { defineStore } = require( 'pinia' );
 
-const useNotificationStore = defineStore( 'beacon', {
+const useNotificationStore = defineStore( 'beacon-notifications', {
 	state: () => ( {
 		notifications: null,
 		unreadCount: null,
@@ -13,7 +13,17 @@ const useNotificationStore = defineStore( 'beacon', {
 		/**
 		 * Fetch the notifications from the API
 		 */
-		fetch() {},
+		fetch() {
+			this.isLoading = true;
+			const api = new mw.Rest();
+			api.get(`/beacon/v1/notifications`)
+				.then( ( data ) => {
+					this.unreadCount = data.unreadCount;
+					this.notifications = data.notifications;
+
+					this.isLoading = false;
+				} );
+		},
 
 		/**
 		 * Mark a notification as read
@@ -37,5 +47,13 @@ const useNotificationStore = defineStore( 'beacon', {
 		 * @param id
 		 */
 		markUnread( id ) {},
+
+		toggle() {
+			this.isOpen = !this.isOpen;
+		}
 	}
 } );
+
+module.exports = {
+	useNotificationStore
+}
