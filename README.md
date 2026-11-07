@@ -18,6 +18,57 @@ This is an acceptable trade-off for us as these things do not change frequently;
 
 ### Installation
 
+### Icons
+Like Echo, every notification dispatched by Beacon can support an icon. Unlike Echo, however, icons (like the rest of Beacon) are immutable and are set when the notification is dispatched from the sending wiki. This ensures that the icon displays the same on every wiki, even for notifications which were created by an extension that the wiki viewing the notification on does not have installed.
+
+#### Codex icons
+The simplest option is to use a [Codex icon](https://doc.wikimedia.org/codex/latest/icons/all-icons.html). This can be done by returning the name of the icon verbatim from the presenter:
+
+```php
+return new RenderedNotification(
+	// [...]
+	icon: 'cdxIconUndo',
+);
+```
+
+Right-to-left languages are handled automatically and the icon is flipped if needed. For Beacon to display the Codex icon, it must be listed in `resources/ext.beacon.popover/icons.less`. We have selected the most common ones, but more can be added if necessary. Any other icon will fallback to the bell icon.
+
+#### Custom Icons
+If there is no icon for what you need in Codex, you can provide your own via a ResourceLoader image module which must be registered with Beacon via the `attributes` definition in `extension.json`:
+
+```json
+{
+	"ResourceModules": {
+		"ext.someExtension.icons": {
+			"class": "MediaWiki\\ResourceLoader\\ImageModule",
+			"selector": ".some-extension-icon-{name}",
+			"images": {
+				"thanks": {
+					"file": {
+						"ltr": "thanks-ltr.svg",
+						"rtl": "thanks-rtl.svg"
+					}
+				}
+			}
+		}
+	},
+	"attributes": {
+		"Beacon": {
+			"Icons": {
+				"some-extension-icon-thanks": {
+					"module": "ext.someExtension.icons",
+					"image": "thanks"
+				}
+			}
+		}
+	}
+}
+```
+
+Then return the name you registered in the presenter (`icon: 'some-extension-icon-thanks'`). Note that if you provide your own icon, you **must** provide both the LTR and RTL variant of the icon as Beacon will not flip the icon – ResourceLoader will, however, determine which variant to display based on the language of the viewer.
+
+
+
 ### Contributing
 
 ### Licensing
