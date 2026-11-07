@@ -182,6 +182,14 @@ module.exports = defineComponent({
 		flex-grow: 1;
 	}
 
+	& &__footer a.cdx-button .cdx-icon {
+		width: @size-icon-medium;
+		min-width: @size-icon-medium;
+		height: @size-icon-medium;
+		min-height: @size-icon-medium;
+		padding: 0;
+	}
+
 	&__empty {
 		margin: auto 0;
 		padding: @spacing-150 @spacing-100;
