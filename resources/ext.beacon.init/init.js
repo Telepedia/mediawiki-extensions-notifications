@@ -8,9 +8,11 @@ if ( beaconBadge ) {
 	beaconBadge.setAttribute( 'aria-haspopup', 'dialog' );
 	beaconBadge.setAttribute( 'aria-expanded', 'false' );
 
-	const preload = () => mw.loader.load( 'ext.beacon.popover' );
-	beaconBadge.addEventListener( 'pointerenter', preload, { once: true } );
-	beaconBadge.addEventListener( 'focus', preload, { once: true } );
+	const prefetch = () => mw.loader.using( 'ext.beacon.popover' ).then( ( require ) => {
+		require( 'ext.beacon.popover' ).prefetch( beaconBadge );
+	} );
+	beaconBadge.addEventListener( 'pointerenter', prefetch, { once: true } );
+	beaconBadge.addEventListener( 'focus', prefetch, { once: true } );
 
 	beaconBadge.addEventListener( 'click', ( e ) => {
 		if ( e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey ) {

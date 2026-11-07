@@ -1,5 +1,7 @@
 const { defineStore } = require( 'pinia' );
 
+let inFlight = null;
+
 const useNotificationStore = defineStore( 'beacon-notifications', {
 	state: () => ( {
 		notifications: null,
@@ -11,18 +13,31 @@ const useNotificationStore = defineStore( 'beacon-notifications', {
 
 	actions: {
 		/**
-		 * Fetch the notifications from the API
+		 * Fetch the notifications from the API. We re-use a request thats already in flight if the modal was never
+		 * opened
+		 * @return {Promise}
 		 */
 		fetch() {
+			if ( inFlight ) {
+				return inFlight;
+			}
+
 			this.isLoading = true;
-			const api = new mw.Rest();
-			api.get(`/beacon/v1/notifications`)
+			this.error = null;
+			inFlight = new mw.Rest().get( '/beacon/v1/notifications' )
 				.then( ( data ) => {
 					this.unreadCount = data.unreadCount;
 					this.notifications = data.notifications;
-
+				} )
+				.catch( ( err ) => {
+					this.error = err;
+				} )
+				.finally( () => {
 					this.isLoading = false;
+					inFlight = null;
 				} );
+
+			return inFlight;
 		},
 
 		/**
