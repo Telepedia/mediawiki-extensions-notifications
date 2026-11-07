@@ -8,6 +8,7 @@ use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
+use Wikimedia\LightweightObjectStore\ExpirationAwareness;
 use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
 use Wikimedia\Rdbms\SelectQueryBuilder;
@@ -18,6 +19,12 @@ class NotificationStore {
 	 * The virtual domain as defined in extension.json
 	 */
 	private const string DOMAIN = 'virtual-beacon';
+
+	/**
+	 * The most unread notifications we count; anything above this is shown as "X+" where X is the value of
+	 * this constant
+	 */
+	public const int MAX_UNREAD_COUNT = 99;
 
 	public function __construct(
 		private readonly IConnectionProvider $connectionProvider,
@@ -294,7 +301,12 @@ class NotificationStore {
 			->caller( __METHOD__ )
 			->execute();
 
-		return $dbw->affectedRows();
+		$affected = $dbw->affectedRows();
+		if ( $affected ) {
+			$this->invalidateUnreadCounts( [ $user->getId() ] );
+		}
+
+		return $affected;
 	}
 
 }
