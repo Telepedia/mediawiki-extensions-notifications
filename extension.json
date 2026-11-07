@@ -9,7 +9,10 @@
 	"type": "other",
 	"version": "0.0.0",
 	"requires": {
-		"MediaWiki": ">= 1.47.0"
+		"MediaWiki": ">= 1.47.0",
+		"platform": {
+			"php": ">= 8.1"
+		}
 	},
 	"MessagesDirs": {
 		"Beacon": [
@@ -19,7 +22,55 @@
 	"AutoloadNamespaces": {
 		"Telepedia\\Extensions\\Beacon\\": "includes/"
 	},
-	"ResourceModules": {},
+	"ResourceModules": {
+		"ext.beacon.styles": {
+			"styles": [
+				"badge.less"
+			],
+			"skinStyles": {
+				"timeless": [
+					"skins/timeless.less"
+				]
+			},
+			"localBasePath": "resources/ext.beacon.styles",
+			"remoteExtPath": "Beacon/resources/ext.beacon.styles"
+		},
+		"ext.beacon.init": {
+			"packageFiles": [
+				"init.js"
+			],
+			"localBasePath": "resources/ext.beacon.init",
+			"remoteExtPath": "Beacon/resources/ext.beacon.init"
+		},
+		"ext.beacon.popover": {
+			"class": "MediaWiki\\ResourceLoader\\CodexModule",
+			"packageFiles": [
+				"init.js",
+				"notifications.js",
+				"components/App.vue",
+				"components/NotificationItem.vue"
+			],
+			"styles": [
+				"icons.less"
+			],
+			"dependencies": [
+				"vue",
+				"pinia",
+				"mediawiki.api",
+				"mediawiki.DateFormatter"
+			],
+			"codexComponents": [
+				"CdxPopover"
+			],
+			"messages": [
+				"beacon-popover-title",
+				"beacon-popover-empty",
+				"beacon-popover-unread"
+			],
+			"localBasePath": "resources/ext.beacon.popover",
+			"remoteExtPath": "Beacon/resources/ext.beacon.popover"
+		}
+	},
 	"DatabaseVirtualDomains": [
 		"virtual-beacon"
 	],
@@ -29,10 +80,14 @@
 	"HookHandlers": {
 		"schema": {
 			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SchemaHooks"
+		},
+		"skin": {
+			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SkinHooks"
 		}
 	},
 	"Hooks": {
-		"LoadExtensionSchemaUpdates": "schema"
+		"LoadExtensionSchemaUpdates": "schema",
+		"SkinTemplateNavigation::Universal": "skin"
 	},
 	"ServiceWiringFiles": [
 		"includes/ServiceWiring.php"
@@ -74,6 +129,7 @@
 	],
 	"attributes": {
 		"Beacon": {
+			"Icons": {},
 			"Types": {
 				"edited-other-users-js": {
 					"category": "edited-other-users-js",
