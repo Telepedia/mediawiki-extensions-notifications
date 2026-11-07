@@ -59,7 +59,8 @@
 				"CdxPopover"
 			],
 			"messages": [
-				"beacon-popover-title"
+				"beacon-popover-title",
+				"beacon-popover-empty"
 			],
 			"localBasePath": "resources/ext.beacon.popover",
 			"remoteExtPath": "Beacon/resources/ext.beacon.popover"
