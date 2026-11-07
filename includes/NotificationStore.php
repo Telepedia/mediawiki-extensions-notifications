@@ -179,7 +179,7 @@ class NotificationStore {
 
 		$affected = $dbw->affectedRows();
 		if ( $affected ) {
-			$this->invalidateUnreadCounts( [ $user->getId() ] );
+			$this->invalidateUnreadCounts( [ $this->getCentralId( $user ) ] );
 		}
 
 		return $affected;
@@ -244,7 +244,7 @@ class NotificationStore {
 
 	/**
 	 * Invalidate cached unread counts for these users, so their next request recounts.
-	 * @param int[] $userIds
+	 * @param int[] $userIds central user IDs (the same as notif_user)
 	 * @return void
 	 */
 	public function invalidateUnreadCounts( array $userIds ): void {
@@ -303,7 +303,7 @@ class NotificationStore {
 
 		$affected = $dbw->affectedRows();
 		if ( $affected ) {
-			$this->invalidateUnreadCounts( [ $user->getId() ] );
+			$this->invalidateUnreadCounts( [ $this->getCentralId( $user ) ] );
 		}
 
 		return $affected;
