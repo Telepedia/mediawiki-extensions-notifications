@@ -65,6 +65,7 @@
 				"vue",
 				"pinia",
 				"mediawiki.api",
+				"mediawiki.language",
 				"mediawiki.util",
 				"mediawiki.DateFormatter"
 			],
@@ -78,7 +79,9 @@
 				"beacon-popover-empty",
 				"beacon-popover-unread",
 				"beacon-popover-all",
-				"beacon-popover-preferences"
+				"beacon-popover-preferences",
+				"beacon-notifications-badge",
+				"beacon-badge-count-max"
 			],
 			"localBasePath": "resources/ext.beacon.popover",
 			"remoteExtPath": "Beacon/resources/ext.beacon.popover"
@@ -95,11 +98,15 @@
 			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SchemaHooks"
 		},
 		"skin": {
-			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SkinHooks"
+			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SkinHooks",
+			"services": [
+				"Beacon.NotificationStore"
+			]
 		}
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "schema",
+		"OutputPageCheckLastModified": "skin",
 		"SkinTemplateNavigation::Universal": "skin"
 	},
 	"ServiceWiringFiles": [
