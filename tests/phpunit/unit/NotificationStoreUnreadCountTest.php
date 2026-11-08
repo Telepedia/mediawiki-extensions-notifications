@@ -51,6 +51,11 @@ class NotificationStoreUnreadCountTest extends MediaWikiUnitTestCase {
 	 */
 	private WANObjectCache $wanCache;
 
+	/**
+	 * @var array
+	 */
+	private array $updates = [];
+
 	private function newStore(): NotificationStore {
 		$this->wanCache = new WANObjectCache( [ 'cache' => new HashBagOStuff() ] );
 		$this->wanCache->setMockTime( $this->now );
@@ -69,6 +74,11 @@ class NotificationStoreUnreadCountTest extends MediaWikiUnitTestCase {
 		);
 		$db->method( 'timestamp' )->willReturn( '20231114221320' );
 		$db->method( 'affectedRows' )->willReturn( 1 );
+		$db->method( 'update' )->willReturnCallback(
+			function ( $table, $set, $conds ) {
+				$this->updates[] = [ $set, $conds ];
+			}
+		);
 
 		$connectionProvider = $this->createMock( IConnectionProvider::class );
 		$connectionProvider->method( 'getReplicaDatabase' )->willReturn( $db );
@@ -149,6 +159,27 @@ class NotificationStoreUnreadCountTest extends MediaWikiUnitTestCase {
 		$store->markRead( $this->newUser(), [ 10 ] );
 
 		$this->assertSame( 1, $store->getUnreadCount( $this->newUser() ) );
+	}
+
+	public function testMarkUnreadInvalidatesTheCount(): void {
+		$this->dbCount = 0;
+		$store = $this->newStore();
+		$this->primeCache( $store );
+
+		$this->dbCount = 1;
+		$store->markUnread( $this->newUser(), [ 10 ] );
+
+		$this->assertSame( 1, $store->getUnreadCount( $this->newUser() ) );
+	}
+
+	public function testMarkUnreadOnlyTouchesTheUsersReadNotifications(): void {
+		$this->newStore()->markUnread( $this->newUser(), [ 10, 11 ] );
+
+		[ $set, $conds ] = $this->updates[0];
+		$this->assertSame( [ 'notif_read' => null ], $set );
+		$this->assertSame( self::CENTRAL_ID, $conds['notif_user'] );
+		$this->assertSame( [ 10, 11 ], $conds['notif_id'] );
+		$this->assertEquals( new Expression( 'notif_read', '!=', null ), $conds[0] );
 	}
 
 	public function testUserWithoutCentralIdHasNoUnreadNotifications(): void {
