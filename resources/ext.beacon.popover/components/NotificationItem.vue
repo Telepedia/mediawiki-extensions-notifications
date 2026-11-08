@@ -7,7 +7,12 @@
 			<span class="beacon-icon" :class="iconClass" :style="iconStyle"></span>
 		</span>
 		<span class="beacon-card__text">
-			<a class="beacon-item__header" :href="notification.url">
+			<a
+				class="beacon-item__header"
+				:href="notification.url"
+				@click="onOpen"
+				@auxclick="onOpen"
+			>
 				{{ notification.header }}
 			</a>
 			<span v-if="notification.body" class="beacon-item__body">
@@ -21,6 +26,8 @@
 						:key="link.url"
 						class="beacon-item__link"
 						:href="link.url"
+						@click="onOpen"
+						@auxclick="onOpen"
 					>{{ link.label }}</a>
 				</span>
 				<time
@@ -61,12 +68,26 @@ module.exports = defineComponent( {
 		notification: { type: Object, required: true }
 	},
 	emits: [ 'mark-read', 'mark-unread' ],
-	setup( props ) {
+	setup( props, { emit } ) {
 		const created = computed( () => new Date( props.notification.created ) );
 		const isUnread = computed( () => props.notification.read === null );
 
+		/**
+		 * Mark a notification as read once it has been clicked
+		 * @param {MouseEvent} e
+		 */
+		function onOpen( e ) {
+			if ( e.type === 'auxclick' && e.button !== 1 ) {
+				return;
+			}
+			if ( isUnread.value ) {
+				emit( 'mark-read', props.notification.id );
+			}
+		}
+
 		return {
 			isUnread,
+			onOpen,
 			toggleLabel: computed( () => mw.msg( isUnread.value ? 'beacon-popover-mark-read' : 'beacon-popover-mark-unread' ) ),
 			// we only display the wiki name if the wiki is a foreign wiki
 			isForeign: computed( () => props.notification.wiki.id !== mw.config.get( 'wgDBname' ) ),

@@ -5,6 +5,28 @@ let inFlight = null;
 // @note: mirrored from NotificationStore::MAX_UNREAD_COUNT, keep it in sync with that
 const MAX_UNREAD_COUNT = 99;
 
+/**
+ * Helper to make a POST request in a way that survives a page unload. mw.Rest() requests are cancelled when the
+ * page unloads, so clicking a notification would open the notif but would not mark it as read as the request would
+ * be cancelled. This ensures the request is still sent
+ * @param {string} path
+ * @param {Object} body
+ * @return {Promise}
+ */
+async function postKeepalive( path, body ) {
+	const response = await fetch( mw.util.wikiScript( 'rest' ) + path, {
+		method: 'POST',
+		keepalive: true,
+		credentials: 'same-origin',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify( body )
+	} );
+	if ( !response.ok ) {
+		throw new Error( `HTTP ${ response.status }` );
+	}
+	return response.json();
+}
+
 const useNotificationStore = defineStore( 'beacon-notifications', {
 	state: () => ( {
 		notifications: null,
@@ -60,7 +82,7 @@ actions: {
 		this.syncBadge();
 
 		try {
-			const data = await new mw.Rest().post( '/beacon/v1/notifications/read', {
+			const data = await postKeepalive( '/beacon/v1/notifications/read', {
 				ids: [ id ],
 				token: mw.user.tokens.get( 'csrfToken' )
 				} );

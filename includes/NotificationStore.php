@@ -233,16 +233,6 @@ class NotificationStore {
 	}
 
 	/**
-	 * Mark a notification as seen, but not read
-	 * @param UserIdentity $user the user we're working with
-	 * @param array $ids the ids of the notifications to mark as read
-	 * @return void a simple upsert so does not return anything. Failures are logged but swallowed
-	 * and not thrown
-	 */
-	public function markSeen( UserIdentity $user, array $ids ): void {
-	}
-
-	/**
 	 * Hide or restore one batch of notifications about a page, i.e. when it is deleted or restored
 	 * @param string $wiki the wiki ID the page belongs to
 	 * @param int $pageId the page ID on that wiki
