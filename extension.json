@@ -95,6 +95,10 @@
 				"components/App.vue",
 				"components/NotificationItem.vue",
 				{
+					"name": "config.json",
+					"callback": "Telepedia\\Extensions\\Beacon\\ResourceLoader\\PopoverConfig::getConfig"
+				},
+				{
 					"name": "icons.json",
 					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
 					"callbackParam": [
@@ -199,6 +203,7 @@
 	"attributes": {
 		"Beacon": {
 			"Icons": {},
+			"PopoverPlacement": {},
 			"Types": {
 				"edited-other-users-js": {
 					"category": "edited-other-users-js",

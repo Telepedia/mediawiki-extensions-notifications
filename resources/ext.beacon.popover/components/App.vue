@@ -81,6 +81,7 @@ const { useNotificationStore } = require( '../notifications.js' );
 const { CdxButton, CdxIcon, CdxPopover } = require( '../codex.js' );
 const { cdxIconCheckAll, cdxIconHistory, cdxIconSettings } = require( '../icons.json' );
 const NotificationItem = require( './NotificationItem.vue' );
+const { placement } = require( '../config.json' );
 module.exports = defineComponent({
 	name: 'Notifications',
 	components: {
@@ -101,7 +102,7 @@ module.exports = defineComponent({
 
 		return {
 			store,
-			placement: 'bottom-end',
+			placement,
 			allUrl: mw.util.getUrl( 'Special:Notifications' ),
 			preferencesUrl: mw.util.getUrl( 'Special:Preferences' ) + '#mw-prefsection-beacon',
 			cdxIconCheckAll,
@@ -131,12 +132,20 @@ module.exports = defineComponent({
 	.cdx-popover__arrow {
 		display: none;
 	}
+
+	.cdx-popover__body {
+		display: flex;
+		flex-direction: column;
+		min-height: 0;
+		overflow: hidden;
+	}
 }
 
 @beacon-row-height: ~'( @{size-100} + 2 * @{size-75} + 2 * @{spacing-35} + 2 * @{spacing-75} )';
 
 .beacon-card {
 	display: flex;
+	flex: 1 1 auto;
 	flex-direction: column;
 	min-height: 0;
 	color: @color-base;
