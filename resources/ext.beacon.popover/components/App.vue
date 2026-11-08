@@ -76,8 +76,8 @@ module.exports = defineComponent({
 	setup() {
 		const store = useNotificationStore();
 
-		function markNotificationRead( id ) {
-			console.log( id );
+		async function markNotificationRead( id ) {
+			await store.markRead( id );
 		}
 
 		return {

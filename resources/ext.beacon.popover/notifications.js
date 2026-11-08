@@ -48,7 +48,31 @@ const useNotificationStore = defineStore( 'beacon-notifications', {
 		 * Mark a notification as read
 		 * @param id the ID of the notification to be marked as read
 		 */
-		markRead( id ) {},
+		async markRead( id ) {
+			// we eagerly update the state of the store, ie, mark the notification as read on the frontend before
+			// the request from the API takes place; if the request fails, we roll the state back
+			const notification = this.notifications?.find( ( n ) => n.id === id );
+			if ( !notification || notification.read !== null ) {
+				return;
+			}
+			notification.read = new Date().toISOString();
+			this.unreadCount--;
+			this.syncBadge();
+
+			try {
+				const data = await new mw.Rest().post( '/beacon/v1/notifications/read', {
+					ids: [ id ],
+					token: mw.user.tokens.get( 'csrfToken' )
+				} );
+				this.unreadCount = data.unreadCount;
+			} catch ( err ) {
+				// something failed; roll the state back and mark the notification as unread
+				notification.read = null;
+				this.unreadCount++;
+			} finally {
+				this.syncBadge();
+			}
+		},
 
 		/**
 		 * Mark all notifications as read
