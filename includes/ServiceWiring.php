@@ -5,6 +5,7 @@ use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Registration\ExtensionRegistry;
 use Telepedia\Extensions\Beacon\Domain\SourceWiki;
+use Telepedia\Extensions\Beacon\NotificationCategoryRegistry;
 use Telepedia\Extensions\Beacon\NotificationIconRegistry;
 use Telepedia\Extensions\Beacon\NotificationSender;
 use Telepedia\Extensions\Beacon\NotificationStore;
