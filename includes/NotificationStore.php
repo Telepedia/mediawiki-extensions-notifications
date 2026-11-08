@@ -108,9 +108,12 @@ class NotificationStore {
 	 * We stop counting at MAX_UNREAD_COUNT + 1 so that a user with thousands of notifications doesn't cost us
 	 * a big scan on every page view
 	 * @param UserIdentity $user
+	 * @param bool $usePrimary whether to get the count from the primary database and not a replica. This is mostly for
+	 * getting the unread count after a notification is marked read, to avoid returning the old number before the
+	 * replica has caught up
 	 * @return int between 0 and MAX_UNREAD_COUNT + 1
 	 */
-	public function getUnreadCount( UserIdentity $user ): int {
+	public function getUnreadCount( UserIdentity $user, bool $usePrimary = false ): int {
 		$centralId = $this->getCentralId( $user );
 		if ( !$centralId ) {
 			return 0;
@@ -121,10 +124,15 @@ class NotificationStore {
 		return (int)$this->wanCache->getWithSetCallback(
 			$this->wanCache->makeGlobalKey( 'beacon-unread-count-value', $centralId ),
 			ExpirationAwareness::TTL_DAY,
-			function () use ( $centralId ) {
-				$dbr = $this->connectionProvider->getReplicaDatabase( self::DOMAIN );
+			function () use ( $centralId, $usePrimary ) {
+				$dbrw = null;
+				if ( $usePrimary ) {
+					$dbrw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+				} else {
+					$dbrw = $this->connectionProvider->getReplicaDatabase( self::DOMAIN );
+				}
 
-				return $dbr->newSelectQueryBuilder()
+				return $dbrw->newSelectQueryBuilder()
 					->select( 'notif_id' )
 					->from( 'beacon_notifications' )
 					->where( [
