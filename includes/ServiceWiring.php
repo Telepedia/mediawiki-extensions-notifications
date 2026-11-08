@@ -13,6 +13,12 @@ use Telepedia\Extensions\Beacon\Presentation\RecipientFormatterFactory;
 
 /** @phpcs-require-sorted-array */
 return [
+	'Beacon.NotificationCategoryRegistry' => static function (): NotificationCategoryRegistry {
+		return new NotificationCategoryRegistry(
+			ExtensionRegistry::getInstance()->getAttribute( 'BeaconCategories' )
+		);
+	},
+
 	'Beacon.NotificationIconRegistry' => static function ( MediaWikiServices $services ): NotificationIconRegistry {
 		return new NotificationIconRegistry(
 			ExtensionRegistry::getInstance()->getAttribute( 'BeaconIcons' ),
