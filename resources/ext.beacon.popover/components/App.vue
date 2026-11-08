@@ -44,7 +44,7 @@
 				<p v-else-if="!store.notifications || !store.notifications.length" class="beacon-card__empty">
 					{{ $i18n( 'beacon-popover-empty' ).text() }}
 				</p>
-				<ul v-else class="beacon-card__list">
+				<ul v-else class="beacon-list">
 					<notification-item
 						v-for="notification in store.notifications"
 						:key="notification.id"
