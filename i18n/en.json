@@ -7,7 +7,6 @@
 	"beacon-desc": "Notification service for MediaWiki",
 	"beacon-popover-title": "Notifications",
 	"beacon-popover-empty": "You have no notifications.",
-	"beacon-popover-unread": "Unread",
 	"beacon-popover-mark-read": "Mark as read",
 	"beacon-popover-mark-unread": "Mark as unread",
 	"beacon-popover-mark-all-read": "Mark all as read",

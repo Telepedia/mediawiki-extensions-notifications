@@ -7,7 +7,6 @@
 	"beacon-desc": "{{desc|name=Beacon|url=https://github.com/telepedia/mediawiki-extensions-beacon}}",
 	"beacon-popover-title": "Heading at the top of the notifications popover that opens from the bell.\n{{Identical|Notifications}}",
 	"beacon-popover-empty": "Shown in the notifications popover when the user has no notifications.",
-	"beacon-popover-unread": "Tooltip on the dot marking an unread notification in the notifications popover.\n{{Identical|Unread}}",
 	"beacon-popover-mark-read": "Tooltip and accessible label of the dot button on an unread notification in the notifications popover, which marks it as read.\n{{Identical|Mark as read}}",
 	"beacon-popover-mark-unread": "Tooltip and accessible label of the ring button on a read notification in the notifications popover, which marks it as unread again.\n{{Identical|Mark as unread}}",
 	"beacon-popover-mark-all-read": "Label of the button at the top of the notifications popover that marks every notification as read.\n{{Identical|Mark all as read}}",

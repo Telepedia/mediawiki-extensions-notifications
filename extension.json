@@ -78,7 +78,6 @@
 			"messages": [
 				"beacon-popover-title",
 				"beacon-popover-empty",
-				"beacon-popover-unread",
 				"beacon-popover-mark-read",
 				"beacon-popover-mark-unread",
 				"beacon-popover-mark-all-read",
