@@ -12,7 +12,7 @@ Echo is not really a great extension for notification capabilities for many diff
 
 In respect of #2, wikis using `$wgSharedDB` do not require any funky authentication, since their `actor` and `user` IDs are persistent across wikis. We consider that it is easier to just write something fresh rather than mess about forking Echo etc.
 
-In contrast, Beacon is built with immutability first – a notification is created once, at dispatch time, with all of the required information to display it to any wiki on a farm. This drops a lot of Echo's fluff where the message of a notification can be changed after the notification has already been dispatched. However, this comes at the obvious cost of immutability (ie if the sitename of a wiki is changed after a notification has been dispatched, it will obviously be wrong when the user views the notification.)
+Echo also has the odd behaviour that notification messages, icons, etc. can be changed after the notification has been dispatched, which is a bit weird. In contrast, Beacon is built with immutability first – a notification is created once, at dispatch time, with all of the required information to display it to any wiki on a farm. This drops a lot of Echo's fluff where the message of a notification can be changed after the notification has already been dispatched. However, this comes at the obvious cost of immutability (ie if the sitename of a wiki is changed after a notification has been dispatched, it will obviously be wrong when the user views the notification.)
 
 This is an acceptable trade-off for us as these things do not change frequently; however we will explore methods to update these things when these things do happen.
 
