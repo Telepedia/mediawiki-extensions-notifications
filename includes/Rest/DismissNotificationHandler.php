@@ -35,8 +35,9 @@ class DismissNotificationHandler extends SimpleHandler {
 		$ids = $body['ids'];
 
 		$this->notificationStore->markRead( $user, $ids );
+		$unreadCount = $this->notificationStore->getUnreadCount( $user, true );
 
-		return $this->getResponseFactory()->createNoContent();
+		return $this->getResponseFactory()->createJson( [ 'unreadCount' => $unreadCount ] );
 	}
 
 	/**
