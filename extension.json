@@ -19,6 +19,17 @@
 			"i18n"
 		]
 	},
+	"ExtensionMessagesFiles": {
+		"BeaconAlias": "Beacon.alias.php"
+	},
+	"SpecialPages": {
+		"Notifications": {
+			"class": "Telepedia\\Extensions\\Beacon\\Special\\SpecialNotifications",
+			"services": [
+				"Beacon.NotificationStore"
+			]
+		}
+	},
 	"AutoloadNamespaces": {
 		"Telepedia\\Extensions\\Beacon\\": "includes/"
 	},
@@ -34,6 +45,40 @@
 			},
 			"localBasePath": "resources/ext.beacon.styles",
 			"remoteExtPath": "Beacon/resources/ext.beacon.styles"
+		},
+		"ext.beacon.list.styles": {
+			"styles": [
+				"icons.less",
+				"item.less"
+			],
+			"localBasePath": "resources/ext.beacon.list.styles",
+			"remoteExtPath": "Beacon/resources/ext.beacon.list.styles"
+		},
+		"ext.beacon.special.styles": {
+			"class": "MediaWiki\\ResourceLoader\\CodexModule",
+			"codexStyleOnly": true,
+			"codexComponents": [
+				"CdxButton"
+			],
+			"styles": [
+				"special.less"
+			],
+			"localBasePath": "resources/ext.beacon.special.styles",
+			"remoteExtPath": "Beacon/resources/ext.beacon.special.styles"
+		},
+		"ext.beacon.special": {
+			"packageFiles": [
+				"special.js"
+			],
+			"dependencies": [
+				"mediawiki.util",
+				"user.options"
+			],
+			"messages": [
+				"beacon-popover-mark-unread"
+			],
+			"localBasePath": "resources/ext.beacon.special",
+			"remoteExtPath": "Beacon/resources/ext.beacon.special"
 		},
 		"ext.beacon.init": {
 			"packageFiles": [
@@ -59,10 +104,8 @@
 					]
 				}
 			],
-			"styles": [
-				"icons.less"
-			],
 			"dependencies": [
+				"ext.beacon.list.styles",
 				"vue",
 				"pinia",
 				"mediawiki.api",
