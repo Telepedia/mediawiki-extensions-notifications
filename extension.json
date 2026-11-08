@@ -53,6 +53,7 @@
 					"name": "icons.json",
 					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
 					"callbackParam": [
+						"cdxIconCheckAll",
 						"cdxIconHistory",
 						"cdxIconSettings"
 					]
@@ -79,6 +80,11 @@
 				"beacon-popover-empty",
 				"beacon-popover-unread",
 				"beacon-popover-mark-read",
+				"beacon-popover-mark-unread",
+				"beacon-popover-mark-all-read",
+				"beacon-popover-error",
+				"beacon-popover-retry",
+				"beacon-popover-action-error",
 				"beacon-popover-all",
 				"beacon-popover-preferences",
 				"beacon-notifications-badge",

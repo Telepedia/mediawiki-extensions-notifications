@@ -69,15 +69,48 @@ const useNotificationStore = defineStore( 'beacon-notifications', {
 				// something failed; roll the state back and mark the notification as unread
 				notification.read = null;
 				this.unreadCount++;
+				mw.notify( mw.msg( 'beacon-popover-action-error' ), { type: 'error' } );
 			} finally {
 				this.syncBadge();
 			}
 		},
 
 		/**
-		 * Mark all notifications as read
+		 * Mark all notifications as read, up to the newest one we have loaded so that any which may
+		 * have come in since the last fetch are left alone
 		 */
-		markAllRead() {},
+		async markAllRead() {
+			if ( !this.notifications || !this.notifications.length ) {
+				return;
+			}
+
+			const upTo = Math.max( ...this.notifications.map( ( n ) => n.id ) );
+			const changed = this.notifications.filter( ( n ) => n.read === null );
+			const previousCount = this.unreadCount;
+			const now = new Date().toISOString();
+
+			changed.forEach( ( notification ) => {
+				notification.read = now;
+			} );
+			this.unreadCount = 0;
+			this.syncBadge();
+
+			try {
+				const data = await new mw.Rest().post( '/beacon/v1/notifications/read-all', {
+					upTo,
+					token: mw.user.tokens.get( 'csrfToken' )
+				} );
+				this.unreadCount = data.unreadCount;
+			} catch ( err ) {
+				changed.forEach( ( notif ) => {
+					notif.read = null;
+				} );
+				this.unreadCount = previousCount;
+				mw.notify( mw.msg( 'beacon-popover-action-error' ), { type: 'error' } );
+			} finally {
+				this.syncBadge();
+			}
+		},
 
 		/**
 		 * Sync the badge (rendered by PHP) with the actual count after changes have been made

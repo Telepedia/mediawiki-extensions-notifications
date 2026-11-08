@@ -31,12 +31,11 @@
 			</span>
 		</span>
 		<button
-			v-if="isUnread"
 			type="button"
 			class="beacon-item__dot"
-			:title="$i18n( 'beacon-popover-mark-read' ).text()"
-			:aria-label="$i18n( 'beacon-popover-mark-read' ).text()"
-			@click="$emit( 'mark-read', notification.id )"
+			:title="toggleLabel"
+			:aria-label="toggleLabel"
+			@click="$emit( isUnread ? 'mark-read' : 'mark-unread', notification.id )"
 		></button>
 	</li>
 </template>
@@ -61,12 +60,14 @@ module.exports = defineComponent( {
 	props: {
 		notification: { type: Object, required: true }
 	},
-	emits: [ 'mark-read' ],
+	emits: [ 'mark-read', 'mark-unread' ],
 	setup( props ) {
 		const created = computed( () => new Date( props.notification.created ) );
+		const isUnread = computed( () => props.notification.read === null );
 
 		return {
-			isUnread: computed( () => props.notification.read === null ),
+			isUnread,
+			toggleLabel: computed( () => mw.msg( isUnread.value ? 'beacon-popover-mark-read' : 'beacon-popover-mark-unread' ) ),
 			// we only display the wiki name if the wiki is a foreign wiki
 			isForeign: computed( () => props.notification.wiki.id !== mw.config.get( 'wgDBname' ) ),
 			iconClass: computed( () => /^cdxIcon\w+$/.test( props.notification.icon ) ? `beacon-icon--${ props.notification.icon }` : null ),
@@ -180,8 +181,10 @@ module.exports = defineComponent( {
 
 		&::before {
 			content: '';
+			box-sizing: border-box;
 			width: @spacing-50;
 			height: @spacing-50;
+			border: @border-width-base @border-style-base @border-color-progressive;
 			border-radius: @border-radius-circle;
 			background-color: @background-color-progressive;
 		}
@@ -193,6 +196,18 @@ module.exports = defineComponent( {
 		&:focus-visible {
 			outline: @outline-base--focus;
 		}
+	}
+
+	&:not( &--unread ) &__dot {
+		&::before {
+			background-color: transparent;
+			opacity: 0;
+		}
+	}
+
+	&:not( &--unread ):hover &__dot::before,
+	&:not( &--unread ) &__dot:focus-visible::before {
+		opacity: 1;
 	}
 
 	&--unread &__header {

@@ -7,7 +7,18 @@
 		:render-in-place="false"
 	>
 		<div class="beacon-card">
-			<h2 class="beacon-card__header">{{ $i18n( 'beacon-popover-title' ).text() }}</h2>
+			<div class="beacon-card__header">
+				<h2 class="beacon-card__title">{{ $i18n( 'beacon-popover-title' ).text() }}</h2>
+				<cdx-button
+					v-if="store.unreadCount > 0 && store.notifications && store.notifications.length"
+					weight="quiet"
+					size="small"
+					@click="store.markAllRead()"
+				>
+					<cdx-icon :icon="cdxIconCheckAll"></cdx-icon>
+					{{ $i18n( 'beacon-popover-mark-all-read' ).text() }}
+				</cdx-button>
+			</div>
 			<div class="beacon-card__body" :aria-busy="store.isLoading ? 'true' : 'false'">
 				<ul v-if="store.isLoading && !store.notifications" class="beacon-card__list">
 					<li
@@ -24,6 +35,12 @@
 						</span>
 					</li>
 				</ul>
+				<div v-else-if="store.error && !store.notifications" class="beacon-card__empty" role="alert">
+					<p>{{ $i18n( 'beacon-popover-error' ).text() }}</p>
+					<cdx-button size="small" @click="store.fetch()">
+						{{ $i18n( 'beacon-popover-retry' ).text() }}
+					</cdx-button>
+				</div>
 				<p v-else-if="!store.notifications || !store.notifications.length" class="beacon-card__empty">
 					{{ $i18n( 'beacon-popover-empty' ).text() }}
 				</p>
@@ -33,6 +50,7 @@
 						:key="notification.id"
 						:notification="notification"
 						@mark-read="markNotificationRead"
+						@mark-unread="store.markUnread( $event )"
 					></notification-item>
 				</ul>
 			</div>
@@ -60,12 +78,13 @@
 <script>
 const { defineComponent } = require( 'vue' );
 const { useNotificationStore } = require( '../notifications.js' );
-const { CdxIcon, CdxPopover } = require( '../codex.js' );
-const { cdxIconHistory, cdxIconSettings } = require( '../icons.json' );
+const { CdxButton, CdxIcon, CdxPopover } = require( '../codex.js' );
+const { cdxIconCheckAll, cdxIconHistory, cdxIconSettings } = require( '../icons.json' );
 const NotificationItem = require( './NotificationItem.vue' );
 module.exports = defineComponent({
 	name: 'Notifications',
 	components: {
+		CdxButton,
 		CdxIcon,
 		CdxPopover,
 		NotificationItem
@@ -85,6 +104,7 @@ module.exports = defineComponent({
 			placement: 'bottom-end',
 			allUrl: mw.util.getUrl( 'Special:Notifications' ),
 			preferencesUrl: mw.util.getUrl( 'Special:Preferences' ) + '#mw-prefsection-beacon',
+			cdxIconCheckAll,
 			cdxIconHistory,
 			cdxIconSettings,
 			markNotificationRead
@@ -123,9 +143,19 @@ module.exports = defineComponent({
 	font-size: @font-size-medium;
 
 	&__header {
-		margin: 0;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: @spacing-50;
+		min-height: @size-150;
 		padding: @spacing-75 @spacing-100;
 		border-bottom: @border-width-base @border-style-base @border-color-subtle;
+	}
+
+	&__title {
+		margin: 0;
+		padding: 0;
+		border: 0;
 		font-family: inherit;
 		font-size: @font-size-medium;
 		font-weight: @font-weight-bold;
@@ -202,6 +232,10 @@ module.exports = defineComponent({
 		color: @color-subtle;
 		font-size: @font-size-small;
 		text-align: center;
+
+		p {
+			margin: 0 0 @spacing-75;
+		}
 	}
 }
 
