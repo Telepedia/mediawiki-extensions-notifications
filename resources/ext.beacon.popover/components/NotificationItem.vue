@@ -1,12 +1,12 @@
 <template>
 	<li
-		class="beacon-card__item beacon-item"
+		class="beacon-item"
 		:class="{ 'beacon-item--unread': isUnread }"
 	>
-		<span class="beacon-card__icon beacon-item__icon">
+		<span class="beacon-item__icon">
 			<span class="beacon-icon" :class="iconClass" :style="iconStyle"></span>
 		</span>
-		<span class="beacon-card__text">
+		<span class="beacon-item__text">
 			<a
 				class="beacon-item__header"
 				:href="notification.url"
@@ -99,145 +99,3 @@ module.exports = defineComponent( {
 	}
 } );
 </script>
-
-<style lang="less">
-@import 'mediawiki.skin.variables.less';
-
-.beacon-item {
-	position: relative;
-	font-size: @font-size-small;
-	line-height: @line-height-xx-small;
-
-	&:hover {
-		background-color: @background-color-interactive-subtle--hover;
-	}
-
-	.beacon-card__text {
-		gap: @spacing-12;
-	}
-
-	&__icon {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: @border-radius-circle;
-		background-color: @background-color-neutral;
-		color: @color-subtle;
-	}
-
-
-	&__header {
-		&,
-		&:visited {
-			color: @color-base;
-		}
-
-		text-decoration: none;
-		overflow-wrap: anywhere;
-
-		&::after {
-			content: '';
-			position: absolute;
-			inset: 0;
-		}
-
-		&:focus-visible {
-			outline: none;
-
-			&::after {
-				outline: @outline-base--focus;
-				outline-offset: -2px;
-			}
-		}
-	}
-
-	&__body {
-		overflow: hidden;
-		color: @color-subtle;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-
-	&__footer {
-		display: flex;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: @spacing-75;
-		color: @color-subtle;
-		font-size: @font-size-x-small;
-	}
-
-	&__links {
-		display: flex;
-		flex-wrap: wrap;
-		gap: @spacing-75;
-		min-width: 0;
-	}
-
-	&__link {
-		position: relative;
-		z-index: 1;
-	}
-
-	&__time {
-		flex-shrink: 0;
-		white-space: nowrap;
-	}
-
-	&__dot {
-		position: relative;
-		z-index: 1;
-		display: flex;
-		flex-shrink: 0;
-		align-items: center;
-		justify-content: center;
-		width: @size-125;
-		height: @size-125;
-		margin: 0;
-		padding: 0;
-		border: 0;
-		border-radius: @border-radius-circle;
-		background-color: transparent;
-		cursor: pointer;
-
-		&::before {
-			content: '';
-			box-sizing: border-box;
-			width: @spacing-50;
-			height: @spacing-50;
-			border: @border-width-base @border-style-base @border-color-progressive;
-			border-radius: @border-radius-circle;
-			background-color: @background-color-progressive;
-		}
-
-		&:hover {
-			background-color: @background-color-progressive-subtle--hover;
-		}
-
-		&:focus-visible {
-			outline: @outline-base--focus;
-		}
-	}
-
-	&:not( &--unread ) &__dot {
-		&::before {
-			background-color: transparent;
-			opacity: 0;
-		}
-	}
-
-	&:not( &--unread ):hover &__dot::before,
-	&:not( &--unread ) &__dot:focus-visible::before {
-		opacity: 1;
-	}
-
-	&--unread &__header {
-		font-weight: @font-weight-bold;
-	}
-
-	&--unread &__icon {
-		background-color: @background-color-progressive-subtle;
-		color: @color-progressive;
-	}
-}
-</style>
