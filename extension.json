@@ -200,6 +200,17 @@
 				"Beacon.NotificationStore",
 				"UserIdentityUtils"
 			]
+		},
+		{
+			"path": "/beacon/v1/notifications/unread",
+			"method": [
+				"POST"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Rest\\MarkUnreadHandler",
+			"services": [
+				"Beacon.NotificationStore",
+				"UserIdentityUtils"
+			]
 		}
 	],
 	"JobClasses": {

@@ -75,23 +75,30 @@ class NotificationStore {
 	}
 
 	/**
-	 * List all of the notifications for this user
+	 * List the user's notifications, newest first
 	 * @param UserIdentity $user
-	 * @return array
-	 * @TODO: do we want to potentially return all noitifcations here if the user is on S:Notifications?
+	 * @param int $limit the most notifications to return
+	 * @param int|null $olderThan only return notifications with an ID below this, to get the next page
+	 * @return Notification[]
 	 * @throws JsonException
 	 */
-	public function listForUser( UserIdentity $user ): array {
+	public function listForUser( UserIdentity $user, int $limit, ?int $olderThan = null ): array {
 		$dbr = $this->connectionProvider->getReplicaDatabase( self::DOMAIN );
+
+		$conds = [
+			'notif_user' => $this->getCentralId( $user ),
+			'notif_hidden' => 0,
+		];
+		if ( $olderThan !== null ) {
+			$conds[] = $dbr->expr( 'notif_id', '<', $olderThan );
+		}
 
 		$query = $dbr->newSelectQueryBuilder()
 			->select( '*' )
 			->from( 'beacon_notifications' )
-			->where( [
-				'notif_user' => $this->getCentralId( $user ),
-				'notif_hidden' => 0,
-			] )
+			->where( $conds )
 			->orderBy( 'notif_id', SelectQueryBuilder::SORT_DESC )
+			->limit( $limit )
 			->caller( __METHOD__ );
 
 		$notifications = [];
@@ -181,6 +188,37 @@ class NotificationStore {
 				'notif_user' => $this->getCentralId( $user ),
 				'notif_id' => $ids,
 				'notif_read' => null
+			] )
+			->caller( __METHOD__ )
+			->execute();
+
+		$affected = $dbw->affectedRows();
+		if ( $affected ) {
+			$this->invalidateUnreadCounts( [ $this->getCentralId( $user ) ] );
+		}
+
+		return $affected;
+	}
+
+	/**
+	 * Mark notifications that have been read as unread again
+	 * @param UserIdentity $user the user we're working with
+	 * @param array $ids the IDs of the notifications to mark as unread
+	 * @return int the number of rows affected
+	 */
+	public function markUnread( UserIdentity $user, array $ids ): int {
+		if ( !$ids ) {
+			return 0;
+		}
+
+		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+		$dbw->newUpdateQueryBuilder()
+			->update( 'beacon_notifications' )
+			->set( [ 'notif_read' => null ] )
+			->where( [
+				'notif_user' => $this->getCentralId( $user ),
+				'notif_id' => $ids,
+				$dbw->expr( 'notif_read', '!=', null ),
 			] )
 			->caller( __METHOD__ )
 			->execute();
