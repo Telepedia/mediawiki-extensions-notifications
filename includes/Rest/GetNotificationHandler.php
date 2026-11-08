@@ -9,9 +9,23 @@ use MediaWiki\User\UserIdentityUtils;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Telepedia\Extensions\Beacon\NotificationStore;
+use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\ParamValidator\TypeDef\IntegerDef;
 use Wikimedia\Timestamp\TimestampFormat;
 
 class GetNotificationHandler extends SimpleHandler {
+
+	/**
+	 * How many notifications the popover returns
+	 * @var int
+	 */
+	private const int DEFAULT_LIMIT = 25;
+
+	/**
+	 * The most that can be asked for at once
+	 * @var int
+	 */
+	private const int MAX_LIMIT = 100;
 
 	public function __construct(
 		private readonly NotificationStore $notificationStore,
@@ -32,13 +46,23 @@ class GetNotificationHandler extends SimpleHandler {
 			);
 		}
 
-		$notifications = $this->notificationStore->listForUser( $user );
-		$unreadCount = $this->notificationStore->getUnreadCount( $user );
+		$params = $this->getValidatedParams();
+		$limit = $params['limit'];
+
+		// this is purposefully +1 than we actually want, so we can check if there are any more notifications
+		// without actually having to continue
+		$notifications = $this->notificationStore->listForUser( $user, $limit + 1, $params['continue'] );
+		$continue = null;
+		if ( count( $notifications ) > $limit ) {
+			$notifications = array_slice( $notifications, 0, $limit );
+			$continue = end( $notifications )->id;
+		}
 
 		return $this->getResponseFactory()->createJson(
 			[
 				'notifications' => array_map( $this->serialize( ... ), $notifications ),
-				'unreadCount' => $unreadCount
+				'unreadCount' => $this->notificationStore->getUnreadCount( $user ),
+				'continue' => $continue,
 			],
 		);
 	}
@@ -48,6 +72,28 @@ class GetNotificationHandler extends SimpleHandler {
 	 */
 	public function needsWriteAccess(): bool {
 		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getParamSettings(): array {
+		return [
+			'limit' => [
+				self::PARAM_SOURCE => 'query',
+				ParamValidator::PARAM_TYPE => 'integer',
+				ParamValidator::PARAM_DEFAULT => self::DEFAULT_LIMIT,
+				IntegerDef::PARAM_MIN => 1,
+				IntegerDef::PARAM_MAX => self::MAX_LIMIT,
+				IntegerDef::PARAM_MAX2 => self::MAX_LIMIT,
+			],
+			'continue' => [
+				self::PARAM_SOURCE => 'query',
+				ParamValidator::PARAM_TYPE => 'integer',
+				ParamValidator::PARAM_REQUIRED => false,
+				IntegerDef::PARAM_MIN => 1,
+			],
+		];
 	}
 
 	/**
