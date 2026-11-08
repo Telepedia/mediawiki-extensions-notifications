@@ -25,5 +25,16 @@
 	"beacon-special-title": "Notifications",
 	"beacon-special-newest": "Newest",
 	"beacon-special-older": "Older notifications",
-	"beacon-special-nav-label": "Notification pages"
+	"beacon-special-nav-label": "Notification pages",
+	"prefs-beacon": "Notifications",
+	"prefs-beacon-categories": "Notify me about these events",
+	"beacon-category-reverted": "Notify me when someone reverts an edit I made, by using the undo or rollback tool.",
+	"beacon-category-edited-other-users-js": "Notify me when someone edits my personal JavaScript",
+	"beacon-category-edited-talk-page": "Notify me when someone edits my talk page",
+	"beacon-category-edited-user-page": "Notify me when someone edits my user page",
+	"beacon-category-mention": "Notify me when someone links to my user page",
+	"beacon-category-user-rights": "Notify me when someone changes my user rights",
+	"beacon-category-thanks": "Notify me when someone thanks me for an edit I made",
+	"beacon-category-blocked": "Notify me when I am blocked or unblocked",
+	"beacon-preferences-per-wiki": "These options apply only to this wiki. To modify your notification preferences on every wiki, use your [[Special:GlobalPreferences#mw-prefsection-beacon|global preferences]]."
 }
