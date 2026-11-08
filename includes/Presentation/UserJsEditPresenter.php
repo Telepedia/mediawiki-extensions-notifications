@@ -18,17 +18,17 @@ class UserJsEditPresenter implements NotificationPresenter {
 					->plaintextParams( $context->agent->getName(), $title->getPrefixedText() )
 			),
 			url: $diffUrl,
-			icon: 'code',
+			icon: 'cdxIconCode',
 			links: [
 				new NotificationLink(
 					$formatter->format( MessageValue::new( 'beacon-notification-link-view-changes' ) ),
 					$diffUrl,
-					'changes'
+					'cdxIconDiffs'
 				),
 				new NotificationLink(
 					$formatter->format( MessageValue::new( 'beacon-notification-link-page' ) ),
 					$title->getFullURL(),
-					'article'
+					'cdxIconArticle'
 				),
 			],
 		);

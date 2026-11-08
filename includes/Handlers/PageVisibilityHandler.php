@@ -20,7 +20,8 @@ class PageVisibilityHandler extends DomainEventIngress implements
 
 	public function __construct(
 		private readonly JobQueueGroup $jobQueueGroup,
-	) {}
+	) {
+	}
 
 	public function handlePageDeletedEvent( PageDeletedEvent $event ): void {
 		$this->queueSetHidden( $event->getPageId(), true );

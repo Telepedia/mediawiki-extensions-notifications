@@ -9,7 +9,10 @@
 	"type": "other",
 	"version": "0.0.0",
 	"requires": {
-		"MediaWiki": ">= 1.47.0"
+		"MediaWiki": ">= 1.47.0",
+		"platform": {
+			"php": ">= 8.1"
+		}
 	},
 	"MessagesDirs": {
 		"Beacon": [
@@ -19,7 +22,77 @@
 	"AutoloadNamespaces": {
 		"Telepedia\\Extensions\\Beacon\\": "includes/"
 	},
-	"ResourceModules": {},
+	"ResourceModules": {
+		"ext.beacon.styles": {
+			"styles": [
+				"badge.less"
+			],
+			"skinStyles": {
+				"timeless": [
+					"skins/timeless.less"
+				]
+			},
+			"localBasePath": "resources/ext.beacon.styles",
+			"remoteExtPath": "Beacon/resources/ext.beacon.styles"
+		},
+		"ext.beacon.init": {
+			"packageFiles": [
+				"init.js"
+			],
+			"localBasePath": "resources/ext.beacon.init",
+			"remoteExtPath": "Beacon/resources/ext.beacon.init"
+		},
+		"ext.beacon.popover": {
+			"class": "MediaWiki\\ResourceLoader\\CodexModule",
+			"packageFiles": [
+				"init.js",
+				"notifications.js",
+				"components/App.vue",
+				"components/NotificationItem.vue",
+				{
+					"name": "icons.json",
+					"callback": "MediaWiki\\ResourceLoader\\CodexModule::getIcons",
+					"callbackParam": [
+						"cdxIconCheckAll",
+						"cdxIconHistory",
+						"cdxIconSettings"
+					]
+				}
+			],
+			"styles": [
+				"icons.less"
+			],
+			"dependencies": [
+				"vue",
+				"pinia",
+				"mediawiki.api",
+				"mediawiki.language",
+				"mediawiki.util",
+				"mediawiki.DateFormatter"
+			],
+			"codexComponents": [
+				"CdxButton",
+				"CdxIcon",
+				"CdxPopover"
+			],
+			"messages": [
+				"beacon-popover-title",
+				"beacon-popover-empty",
+				"beacon-popover-mark-read",
+				"beacon-popover-mark-unread",
+				"beacon-popover-mark-all-read",
+				"beacon-popover-error",
+				"beacon-popover-retry",
+				"beacon-popover-action-error",
+				"beacon-popover-all",
+				"beacon-popover-preferences",
+				"beacon-notifications-badge",
+				"beacon-badge-count-max"
+			],
+			"localBasePath": "resources/ext.beacon.popover",
+			"remoteExtPath": "Beacon/resources/ext.beacon.popover"
+		}
+	},
 	"DatabaseVirtualDomains": [
 		"virtual-beacon"
 	],
@@ -29,10 +102,18 @@
 	"HookHandlers": {
 		"schema": {
 			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SchemaHooks"
+		},
+		"skin": {
+			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SkinHooks",
+			"services": [
+				"Beacon.NotificationStore"
+			]
 		}
 	},
 	"Hooks": {
-		"LoadExtensionSchemaUpdates": "schema"
+		"LoadExtensionSchemaUpdates": "schema",
+		"OutputPageCheckLastModified": "skin",
+		"SkinTemplateNavigation::Universal": "skin"
 	},
 	"ServiceWiringFiles": [
 		"includes/ServiceWiring.php"
@@ -74,6 +155,7 @@
 	],
 	"attributes": {
 		"Beacon": {
+			"Icons": {},
 			"Types": {
 				"edited-other-users-js": {
 					"category": "edited-other-users-js",
@@ -119,6 +201,17 @@
 				"POST"
 			],
 			"class": "Telepedia\\Extensions\\Beacon\\Rest\\DismissAllHandler",
+			"services": [
+				"Beacon.NotificationStore",
+				"UserIdentityUtils"
+			]
+		},
+		{
+			"path": "/beacon/v1/notifications/unread",
+			"method": [
+				"POST"
+			],
+			"class": "Telepedia\\Extensions\\Beacon\\Rest\\MarkUnreadHandler",
 			"services": [
 				"Beacon.NotificationStore",
 				"UserIdentityUtils"

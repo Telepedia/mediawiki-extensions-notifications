@@ -16,5 +16,6 @@ readonly class NotificationContext {
 		public ?UserIdentity $agent = null,
 		public ?Title $title = null,
 		public array $extra = [],
-	) {}
+	) {
+	}
 }

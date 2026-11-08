@@ -3,6 +3,7 @@
 namespace Telepedia\Extensions\Beacon;
 
 use Telepedia\Extensions\Beacon\Domain\Notification;
+use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Telepedia\Extensions\Beacon\Domain\SourceWiki;
 use Telepedia\Extensions\Beacon\Presentation\NotificationContext;
 use Telepedia\Extensions\Beacon\Presentation\RecipientFormatterFactory;
@@ -14,7 +15,9 @@ class NotificationSender {
 		private readonly RecipientFormatterFactory $formatterFactory,
 		private readonly NotificationStore $store,
 		private readonly SourceWiki $wiki,
-	) {}
+		private readonly NotificationIconRegistry $icons,
+	) {
+	}
 
 	/**
 	 * @param string $type a type registered in the Beacon "Types" attribute
@@ -38,11 +41,18 @@ class NotificationSender {
 				url: $rendered->url,
 				header: $rendered->header,
 				language: $rendered->language,
-				icon: $rendered->icon,
+				icon: $this->icons->resolve( $rendered->icon, $rendered->language ),
 				body: $rendered->body,
 				agent: $context->agent,
 				page: $context->title,
-				links: $rendered->links,
+				links: array_map(
+					fn ( NotificationLink $link ) => $link->icon === null ? $link : new NotificationLink(
+						$link->label,
+						$link->url,
+						$this->icons->resolve( $link->icon, $rendered->language )
+					),
+					$rendered->links
+				),
 			) );
 			$sent++;
 		}

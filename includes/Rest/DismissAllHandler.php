@@ -9,6 +9,7 @@ use MediaWiki\Rest\Validator\Validator;
 use MediaWiki\User\UserIdentityUtils;
 use Telepedia\Extensions\Beacon\NotificationStore;
 use Wikimedia\ParamValidator\ParamValidator;
+use Wikimedia\ParamValidator\TypeDef\IntegerDef;
 
 class DismissAllHandler extends SimpleHandler {
 
@@ -36,8 +37,9 @@ class DismissAllHandler extends SimpleHandler {
 		$upTo = $body['upTo'];
 
 		$this->notificationStore->markAllRead( $user, $upTo );
+		$unreadCount = $this->notificationStore->getUnreadCount( $user, true );
 
-		return $this->getResponseFactory()->createNoContent();
+		return $this->getResponseFactory()->createJson( [ 'unreadCount' => $unreadCount ] );
 	}
 
 	/**
@@ -62,8 +64,9 @@ class DismissAllHandler extends SimpleHandler {
 		return [
 			'upTo' => [
 				self::PARAM_SOURCE => 'body',
-				ParamValidator::PARAM_TYPE => 'int',
+				ParamValidator::PARAM_TYPE => 'integer',
 				ParamValidator::PARAM_REQUIRED => true,
+				IntegerDef::PARAM_MIN => 1,
 			]
 		] + $this->getTokenParamDefinition();
 	}

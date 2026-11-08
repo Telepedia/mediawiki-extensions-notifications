@@ -1,0 +1,78 @@
+@import 'mediawiki.skin.variables.less';
+
+// we purposefully do not use .cdx-mixin-css-icon() here as it writes the SVG twice and bloats the module
+// so this is a bit of a hack to avoid doing that
+// a Codex icon must be registered here otherwise it will display the fallback (bell) but will be fixed once the
+// icon is registered again
+.beacon-icon-image( @icon ) {
+	@path: extract( @icon, 1 );
+	@should-flip: extract( @icon, 2 );
+	@rtl-path: extract( @icon, 4 );
+	@url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">@{path}</svg>';
+
+	-webkit-mask-image: url( @url );
+	mask-image: url( @url );
+
+	// we literally just flip it here to avoid having to write x2 SVGs but this might be
+	// fragile and we may need to change it in the future
+	& when ( @should-flip = 'true' ) and ( @rtl-path = 'false' ) {
+		html[ dir='rtl' ] & {
+			transform: scaleX( -1 );
+		}
+	}
+
+	& when not ( @rtl-path = 'false' ) {
+		@rtl-url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">@{rtl-path}</svg>';
+
+		html[ dir='rtl' ] & {
+			-webkit-mask-image: url( @rtl-url );
+			mask-image: url( @rtl-url );
+		}
+	}
+}
+
+.beacon-icon( @name, @icon ) {
+	.beacon-icon--@{name} {
+		.beacon-icon-image( @icon );
+	}
+}
+
+.beacon-icon {
+	display: inline-block;
+	width: @size-icon-small;
+	height: @size-icon-small;
+	background-color: currentColor;
+	-webkit-mask-position: center;
+	mask-position: center;
+	-webkit-mask-repeat: no-repeat;
+	mask-repeat: no-repeat;
+	-webkit-mask-size: contain;
+	mask-size: contain;
+	.beacon-icon-image( @cdx-icon-bell );
+}
+
+// @developerNote: add known Codex icons here, the caller should then
+// pass the "cdxIconXYZ" when the notification is dispatched
+.beacon-icon( cdxIconAlert, @cdx-icon-alert );
+.beacon-icon( cdxIconArticle, @cdx-icon-article );
+.beacon-icon( cdxIconBell, @cdx-icon-bell );
+.beacon-icon( cdxIconCheckAll, @cdx-icon-check-all );
+.beacon-icon( cdxIconClock, @cdx-icon-clock );
+.beacon-icon( cdxIconCode, @cdx-icon-code );
+.beacon-icon( cdxIconDiffs, @cdx-icon-diffs );
+.beacon-icon( cdxIconEdit, @cdx-icon-edit );
+.beacon-icon( cdxIconError, @cdx-icon-error );
+.beacon-icon( cdxIconHistory, @cdx-icon-history );
+.beacon-icon( cdxIconInfo, @cdx-icon-info );
+.beacon-icon( cdxIconLink, @cdx-icon-link );
+.beacon-icon( cdxIconLock, @cdx-icon-lock );
+.beacon-icon( cdxIconMessage, @cdx-icon-message );
+.beacon-icon( cdxIconNotice, @cdx-icon-notice );
+.beacon-icon( cdxIconRobot, @cdx-icon-robot );
+.beacon-icon( cdxIconSpeechBubbles, @cdx-icon-speech-bubbles );
+.beacon-icon( cdxIconStar, @cdx-icon-star );
+.beacon-icon( cdxIconTrash, @cdx-icon-trash );
+.beacon-icon( cdxIconUndo, @cdx-icon-undo );
+.beacon-icon( cdxIconUserAvatar, @cdx-icon-user-avatar );
+.beacon-icon( cdxIconUserGroup, @cdx-icon-user-group );
+.beacon-icon( cdxIconUserTalk, @cdx-icon-user-talk );

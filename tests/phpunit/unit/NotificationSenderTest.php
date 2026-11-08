@@ -8,6 +8,7 @@ use MediaWikiUnitTestCase;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Telepedia\Extensions\Beacon\Domain\SourceWiki;
+use Telepedia\Extensions\Beacon\NotificationIconRegistry;
 use Telepedia\Extensions\Beacon\NotificationSender;
 use Telepedia\Extensions\Beacon\NotificationStore;
 use Telepedia\Extensions\Beacon\NotificationTypeRegistry;
@@ -35,9 +36,12 @@ class NotificationSenderTest extends MediaWikiUnitTestCase {
 				language: $formatter->language,
 				header: "Header in {$formatter->language}",
 				url: 'https://foo.example.com/wiki/Some_Page',
-				icon: 'revert',
+				icon: 'an-icon',
 				body: 'Body',
-				links: [ new NotificationLink( 'View', 'https://foo.example.com/wiki/Some_Page' ) ],
+				links: [
+					new NotificationLink( 'View changes', 'https://foo.example.com/wiki/Some_Page?diff=2', 'cdxIconDiffs' ),
+					new NotificationLink( 'View page', 'https://foo.example.com/wiki/Some_Page' ),
+				],
 			)
 		);
 
@@ -60,7 +64,18 @@ class NotificationSenderTest extends MediaWikiUnitTestCase {
 			return count( $this->stored );
 		} );
 
-		return new NotificationSender( $types, $formatterFactory, $store, new SourceWiki( 'foowiki', 'Foo Wiki' ) );
+		$icons = $this->createMock( NotificationIconRegistry::class );
+		$icons->method( 'resolve' )->willReturnCallback(
+			static fn ( string $name, string $language ) => "https://foo.example.com/icons/$name-$language.svg"
+		);
+
+		return new NotificationSender(
+			$types,
+			$formatterFactory,
+			$store,
+			new SourceWiki( 'foowiki', 'Foo Wiki' ),
+			$icons
+		);
 	}
 
 	public function testStoresOneRenderedNotificationPerRecipient(): void {
@@ -75,7 +90,7 @@ class NotificationSenderTest extends MediaWikiUnitTestCase {
 
 		$this->assertSame( 2, $sent );
 		$this->assertSame( [ 1, 3 ], array_map( static fn ( $n ) => $n->recipient->getId(), $this->stored ) );
-		
+
 		$this->assertSame( [ 'fr', 'en' ], array_map( static fn ( $n ) => $n->language, $this->stored ) );
 		$this->assertSame( 'Header in fr', $this->stored[0]->header );
 
@@ -86,8 +101,22 @@ class NotificationSenderTest extends MediaWikiUnitTestCase {
 		$this->assertSame( $agent, $n->agent );
 		$this->assertSame( $title, $n->page );
 		$this->assertSame( 'Body', $n->body );
-		$this->assertSame( 'revert', $n->icon );
-		$this->assertCount( 1, $n->links );
+		$this->assertCount( 2, $n->links );
+	}
+
+	public function testIconsAreResolvedInTheRecipientsLanguage(): void {
+		$this->newSender()->send(
+			'reverted',
+			[ new UserIdentityValue( 1, 'John Appleseed' ), new UserIdentityValue( 3, 'Jane Doe' ) ],
+			new NotificationContext()
+		);
+
+		[ $john, $jane ] = $this->stored;
+		$this->assertSame( 'https://foo.example.com/icons/an-icon-fr.svg', $john->icon );
+		$this->assertSame( 'https://foo.example.com/icons/an-icon-en.svg', $jane->icon );
+
+		$this->assertSame( 'https://foo.example.com/icons/cdxIconDiffs-en.svg', $jane->links[0]->icon );
+		$this->assertNull( $jane->links[1]->icon );
 	}
 
 	public function testNoRecipientsSendsNothing(): void {

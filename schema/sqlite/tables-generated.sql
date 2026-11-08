@@ -27,11 +27,3 @@ CREATE INDEX notif_user_read ON /*_*/beacon_notifications (notif_user, notif_rea
 CREATE INDEX notif_read_created ON /*_*/beacon_notifications (notif_read, notif_created);
 
 CREATE INDEX notif_wiki_page ON /*_*/beacon_notifications (notif_wiki, notif_page_id);
-
-
-CREATE TABLE /*_*/notification_user (
-  nu_user INTEGER UNSIGNED NOT NULL,
-  nu_seen BLOB DEFAULT NULL,
-  nu_last_insert BLOB DEFAULT NULL,
-  PRIMARY KEY(nu_user)
-);

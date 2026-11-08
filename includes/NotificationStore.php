@@ -8,6 +8,7 @@ use MediaWiki\User\UserIdentity;
 use Psr\Log\LoggerInterface;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
+use Wikimedia\LightweightObjectStore\ExpirationAwareness;
 use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\IConnectionProvider;
 use Wikimedia\Rdbms\SelectQueryBuilder;
@@ -19,12 +20,19 @@ class NotificationStore {
 	 */
 	private const string DOMAIN = 'virtual-beacon';
 
+	/**
+	 * The most unread notifications we count; anything above this is shown as "X+" where X is the value of
+	 * this constant
+	 */
+	public const int MAX_UNREAD_COUNT = 99;
+
 	public function __construct(
 		private readonly IConnectionProvider $connectionProvider,
 		private readonly CentralIdLookup $centralIdLookup,
 		private readonly WANObjectCache $wanCache,
 		private readonly LoggerInterface $logger,
-	) {}
+	) {
+	}
 
 	/**
 	 * Store a new notification
@@ -68,23 +76,30 @@ class NotificationStore {
 	}
 
 	/**
-	 * List all of the notifications for this user
+	 * List the user's notifications, newest first
 	 * @param UserIdentity $user
-	 * @return array
-	 * @TODO: do we want to potentially return all noitifcations here if the user is on S:Notifications?
+	 * @param int $limit the most notifications to return
+	 * @param int|null $olderThan only return notifications with an ID below this, to get the next page
+	 * @return Notification[]
 	 * @throws JsonException
 	 */
-	public function listForUser( UserIdentity $user ): array {
+	public function listForUser( UserIdentity $user, int $limit, ?int $olderThan = null ): array {
 		$dbr = $this->connectionProvider->getReplicaDatabase( self::DOMAIN );
+
+		$conds = [
+			'notif_user' => $this->getCentralId( $user ),
+			'notif_hidden' => 0,
+		];
+		if ( $olderThan !== null ) {
+			$conds[] = $dbr->expr( 'notif_id', '<', $olderThan );
+		}
 
 		$query = $dbr->newSelectQueryBuilder()
 			->select( '*' )
 			->from( 'beacon_notifications' )
-			->where( [
-				'notif_user' => $this->getCentralId( $user ),
-				'notif_hidden' => 0,
-			] )
+			->where( $conds )
 			->orderBy( 'notif_id', SelectQueryBuilder::SORT_DESC )
+			->limit( $limit )
 			->caller( __METHOD__ );
 
 		$notifications = [];
@@ -94,6 +109,65 @@ class NotificationStore {
 		}
 
 		return $notifications;
+	}
+
+	/**
+	 * Get how many unread notifications the user has, cached until invalidateUnreadCounts() is called for them.
+	 * We stop counting at MAX_UNREAD_COUNT + 1 so that a user with thousands of notifications doesn't cost us
+	 * a big scan on every page view
+	 * @param UserIdentity $user
+	 * @param bool $usePrimary whether to get the count from the primary database and not a replica. This is mostly for
+	 * getting the unread count after a notification is marked read, to avoid returning the old number before the
+	 * replica has caught up
+	 * @return int between 0 and MAX_UNREAD_COUNT + 1
+	 */
+	public function getUnreadCount( UserIdentity $user, bool $usePrimary = false ): int {
+		$centralId = $this->getCentralId( $user );
+		if ( !$centralId ) {
+			return 0;
+		}
+
+		$checkKey = $this->getUnreadCountCheckKey( $centralId );
+
+		return (int)$this->wanCache->getWithSetCallback(
+			$this->wanCache->makeGlobalKey( 'beacon-unread-count-value', $centralId ),
+			ExpirationAwareness::TTL_DAY,
+			function () use ( $centralId, $usePrimary ) {
+				$dbrw = null;
+				if ( $usePrimary ) {
+					$dbrw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+				} else {
+					$dbrw = $this->connectionProvider->getReplicaDatabase( self::DOMAIN );
+				}
+
+				return $dbrw->newSelectQueryBuilder()
+					->select( 'notif_id' )
+					->from( 'beacon_notifications' )
+					->where( [
+						'notif_user' => $centralId,
+						'notif_read' => null,
+						'notif_hidden' => 0,
+					] )
+					->limit( self::MAX_UNREAD_COUNT + 1 )
+					->caller( __METHOD__ )
+					->fetchRowCount();
+			},
+			[ 'checkKeys' => [ $checkKey ] ]
+		);
+	}
+
+	/**
+	 * When the user's unread count last changed, so page views can be revalidated
+	 * @param UserIdentity $user
+	 * @return float|null unix timestamp, or null if the user has no central ID
+	 */
+	public function getUnreadCountTouched( UserIdentity $user ): ?float {
+		$centralId = $this->getCentralId( $user );
+		if ( !$centralId ) {
+			return null;
+		}
+
+		return $this->wanCache->getCheckKeyTime( $this->getUnreadCountCheckKey( $centralId ) );
 	}
 
 	/**
@@ -121,21 +195,42 @@ class NotificationStore {
 
 		$affected = $dbw->affectedRows();
 		if ( $affected ) {
-			$this->invalidateUnreadCounts( [ $user->getId() ] );
+			$this->invalidateUnreadCounts( [ $this->getCentralId( $user ) ] );
 		}
 
 		return $affected;
 	}
 
 	/**
-	 * Mark a notification as seen, but not read
+	 * Mark notifications that have been read as unread again
 	 * @param UserIdentity $user the user we're working with
-	 * @param array $ids the ids of the notifications to mark as read
-	 * @return void a simple upsert so does not return anything. Failures are logged but swallowed
-	 * and not thrown
-	 *
+	 * @param array $ids the IDs of the notifications to mark as unread
+	 * @return int the number of rows affected
 	 */
-	public function markSeen( UserIdentity $user, array $ids ): void {}
+	public function markUnread( UserIdentity $user, array $ids ): int {
+		if ( !$ids ) {
+			return 0;
+		}
+
+		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+		$dbw->newUpdateQueryBuilder()
+			->update( 'beacon_notifications' )
+			->set( [ 'notif_read' => null ] )
+			->where( [
+				'notif_user' => $this->getCentralId( $user ),
+				'notif_id' => $ids,
+				$dbw->expr( 'notif_read', '!=', null ),
+			] )
+			->caller( __METHOD__ )
+			->execute();
+
+		$affected = $dbw->affectedRows();
+		if ( $affected ) {
+			$this->invalidateUnreadCounts( [ $this->getCentralId( $user ) ] );
+		}
+
+		return $affected;
+	}
 
 	/**
 	 * Hide or restore one batch of notifications about a page, i.e. when it is deleted or restored
@@ -186,7 +281,7 @@ class NotificationStore {
 
 	/**
 	 * Invalidate cached unread counts for these users, so their next request recounts.
-	 * @param int[] $userIds
+	 * @param int[] $userIds central user IDs (the same as notif_user)
 	 * @return void
 	 */
 	public function invalidateUnreadCounts( array $userIds ): void {
@@ -243,7 +338,12 @@ class NotificationStore {
 			->caller( __METHOD__ )
 			->execute();
 
-		return $dbw->affectedRows();
+		$affected = $dbw->affectedRows();
+		if ( $affected ) {
+			$this->invalidateUnreadCounts( [ $this->getCentralId( $user ) ] );
+		}
+
+		return $affected;
 	}
 
 }

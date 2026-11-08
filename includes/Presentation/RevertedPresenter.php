@@ -24,18 +24,18 @@ class RevertedPresenter implements NotificationPresenter {
 					->plaintextParams( $context->agent->getName(), $title->getPrefixedText() )
 			),
 			url: $diffUrl,
-			icon: 'revert',
+			icon: 'cdxIconUndo',
 			body: $summary !== null && $summary !== '' ? $summary : null,
 			links: [
 				new NotificationLink(
 					$formatter->format( MessageValue::new( 'beacon-notification-link-view-changes' ) ),
 					$diffUrl,
-					'changes'
+					'cdxIconDiffs'
 				),
 				new NotificationLink(
 					$formatter->format( MessageValue::new( 'beacon-notification-link-page' ) ),
 					$title->getFullURL(),
-					'article'
+					'cdxIconArticle'
 				),
 			],
 		);

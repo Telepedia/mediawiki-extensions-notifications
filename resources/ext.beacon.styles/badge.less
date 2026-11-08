@@ -1,0 +1,61 @@
+@import 'mediawiki.skin.variables.less';
+
+.beacon-badge .mw-ui-icon-beacon-bell {
+	.cdx-mixin-css-icon( @cdx-icon-bell, currentColor );
+}
+
+.beacon-badge:not( :has( .mw-ui-icon-beacon-bell ) ) {
+	position: relative;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+	text-indent: -9999px;
+	white-space: nowrap;
+	color: transparent;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		text-indent: 0;
+		opacity: 0.87;
+		.cdx-mixin-css-icon( @cdx-icon-bell, @color-base );
+	}
+
+	// 'tis mostly copied fro Echo hehe!
+	&[data-counter-num='0']::before {
+		opacity: 0.51;
+	}
+
+	&:focus-visible {
+		outline: @outline-base--focus;
+	}
+}
+
+.beacon-badge {
+	position: relative;
+
+	&:not( [ data-counter-num='0' ] )::after {
+		content: attr( data-counter-text );
+		position: absolute;
+		top: 0;
+		right: 0;
+		box-sizing: border-box;
+		min-width: @size-100;
+		height: @size-100;
+		padding: 0 @spacing-25;
+		border-radius: @border-radius-pill;
+		box-shadow: 0 0 0 @border-width-thick @background-color-base;
+		background-color: @background-color-progressive;
+		color: @color-inverted-fixed;
+		font-size: @font-size-x-small;
+		font-weight: @font-weight-bold;
+		line-height: @size-100;
+		text-align: center;
+		text-indent: 0;
+		white-space: nowrap;
+		pointer-events: none;
+	}
+}

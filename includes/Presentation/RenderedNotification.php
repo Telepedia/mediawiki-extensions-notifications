@@ -21,5 +21,6 @@ readonly class RenderedNotification {
 		public string $icon,
 		public ?string $body = null,
 		public array $links = [],
-	) {}
+	) {
+	}
 }

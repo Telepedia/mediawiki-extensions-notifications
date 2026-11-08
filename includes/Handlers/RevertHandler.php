@@ -25,7 +25,8 @@ class RevertHandler extends DomainEventIngress implements PageLatestRevisionChan
 		private readonly RevisionStore $revisionStore,
 		private readonly TitleFactory $titleFactory,
 		private readonly NotificationSender $sender,
-	) {}
+	) {
+	}
 
 	public function handlePageLatestRevisionChangedEvent( PageLatestRevisionChangedEvent $event ): void {
 		$editResult = $event->getEditResult();

@@ -228,39 +228,5 @@
 		"pk": [
 			"notif_id"
 		]
-	},
-	{
-		"name": "notification_user",
-		"comment": "Per-user notification state, one row per user",
-		"columns": [
-			{
-				"name": "nu_user",
-				"type": "integer",
-				"options": {
-					"notnull": true,
-					"unsigned": true
-				}
-			},
-			{
-				"name": "nu_seen",
-				"comment": "Last time the user opened the notifications panel",
-				"type": "mwtimestamp",
-				"options": {
-					"notnull": false
-				}
-			},
-			{
-				"name": "nu_last_insert",
-				"comment": "Timestamp of the user's newest notification, for client cache validation",
-				"type": "mwtimestamp",
-				"options": {
-					"notnull": false
-				}
-			}
-		],
-		"indexes": [],
-		"pk": [
-			"nu_user"
-		]
 	}
 ]

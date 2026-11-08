@@ -67,7 +67,7 @@ class RevertedPresenterTest extends MediaWikiUnitTestCase {
 		$rendered = new RevertedPresenter()->present( $this->newFormatter(), $this->newContext( 'undo', null ) );
 
 		$this->assertSame( self::DIFF_URL, $rendered->url );
-		$this->assertSame( 'revert', $rendered->icon );
+		$this->assertSame( 'cdxIconUndo', $rendered->icon );
 		$this->assertSame(
 			[ self::DIFF_URL, self::PAGE_URL ],
 			array_map( static fn ( $link ) => $link->url, $rendered->links )

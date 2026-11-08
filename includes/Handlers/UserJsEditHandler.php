@@ -20,7 +20,8 @@ class UserJsEditHandler extends DomainEventIngress implements PageLatestRevision
 		private readonly UserIdentityLookup $userIdentityLookup,
 		private readonly UserIdentityUtils $userIdentityUtils,
 		private readonly NotificationSender $sender,
-	) {}
+	) {
+	}
 
 	public function handlePageLatestRevisionChangedEvent( PageLatestRevisionChangedEvent $event ): void {
 		$editResult = $event->getEditResult();

@@ -11,7 +11,8 @@ class RecipientFormatterFactory {
 	public function __construct(
 		private readonly UserOptionsLookup $userOptionsLookup,
 		private readonly IMessageFormatterFactory $messageFormatterFactory,
-	) {}
+	) {
+	}
 
 	/**
 	 * @param UserIdentity $recipient
