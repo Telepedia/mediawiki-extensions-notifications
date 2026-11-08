@@ -30,11 +30,3 @@ CREATE TABLE /*_*/beacon_notifications (
   INDEX notif_wiki_page (notif_wiki, notif_page_id),
   PRIMARY KEY(notif_id)
 ) /*$wgDBTableOptions*/;
-
-
-CREATE TABLE /*_*/notification_user (
-  nu_user INT UNSIGNED NOT NULL,
-  nu_seen BINARY(14) DEFAULT NULL,
-  nu_last_insert BINARY(14) DEFAULT NULL,
-  PRIMARY KEY(nu_user)
-) /*$wgDBTableOptions*/;
