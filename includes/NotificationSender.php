@@ -16,7 +16,8 @@ class NotificationSender {
 		private readonly NotificationStore $store,
 		private readonly SourceWiki $wiki,
 		private readonly NotificationIconRegistry $icons,
-	) {}
+	) {
+	}
 
 	/**
 	 * @param string $type a type registered in the Beacon "Types" attribute

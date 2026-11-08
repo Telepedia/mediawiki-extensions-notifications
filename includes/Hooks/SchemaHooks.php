@@ -15,7 +15,7 @@ class SchemaHooks implements LoadExtensionSchemaUpdatesHook {
 	public function onLoadExtensionSchemaUpdates( $updater ) {
 		$dbType = $updater->getDB()->getType();
 		$dir = dirname( __DIR__, 2 ) . '/schema';
-		
+
 		$updater->addExtensionUpdateOnVirtualDomain( [
 			'virtual-beacon',
 			'addTable',

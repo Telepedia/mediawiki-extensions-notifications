@@ -31,7 +31,8 @@ class NotificationStore {
 		private readonly CentralIdLookup $centralIdLookup,
 		private readonly WANObjectCache $wanCache,
 		private readonly LoggerInterface $logger,
-	) {}
+	) {
+	}
 
 	/**
 	 * Store a new notification
@@ -237,9 +238,9 @@ class NotificationStore {
 	 * @param array $ids the ids of the notifications to mark as read
 	 * @return void a simple upsert so does not return anything. Failures are logged but swallowed
 	 * and not thrown
-	 *
 	 */
-	public function markSeen( UserIdentity $user, array $ids ): void {}
+	public function markSeen( UserIdentity $user, array $ids ): void {
+	}
 
 	/**
 	 * Hide or restore one batch of notifications about a page, i.e. when it is deleted or restored

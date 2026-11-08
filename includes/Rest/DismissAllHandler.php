@@ -38,7 +38,7 @@ class DismissAllHandler extends SimpleHandler {
 
 		$this->notificationStore->markAllRead( $user, $upTo );
 		$unreadCount = $this->notificationStore->getUnreadCount( $user, true );
-		
+
 		return $this->getResponseFactory()->createJson( [ 'unreadCount' => $unreadCount ] );
 	}
 

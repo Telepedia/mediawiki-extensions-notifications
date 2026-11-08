@@ -20,7 +20,8 @@ class NotificationTypeRegistry {
 	public function __construct(
 		private readonly ObjectFactory $objectFactory,
 		private readonly array $types,
-	) {}
+	) {
+	}
 
 	public function has( string $type ): bool {
 		return isset( $this->types[$type] );

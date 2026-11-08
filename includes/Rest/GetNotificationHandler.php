@@ -30,7 +30,8 @@ class GetNotificationHandler extends SimpleHandler {
 	public function __construct(
 		private readonly NotificationStore $notificationStore,
 		private readonly UserIdentityUtils $identityUtils
-	) {}
+	) {
+	}
 
 	/**
 	 * @throws JsonException

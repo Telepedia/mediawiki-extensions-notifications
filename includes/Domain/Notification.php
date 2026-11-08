@@ -31,7 +31,8 @@ readonly class Notification {
 		public ?string $created = null,
 		public ?string $read = null,
 		public bool $hidden = false,
-	) {}
+	) {
+	}
 
 	/**
 	 * @throws JsonException

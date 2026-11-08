@@ -30,7 +30,8 @@ class NotificationIconRegistry {
 		private readonly string $loadScript,
 		private readonly UrlUtils $urlUtils,
 		private readonly LoggerInterface $logger,
-	) {}
+	) {
+	}
 
 	/**
 	 * Check whether what we were given is a Codex icon

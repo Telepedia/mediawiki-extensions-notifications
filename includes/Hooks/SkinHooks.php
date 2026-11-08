@@ -15,7 +15,8 @@ class SkinHooks implements
 
 	public function __construct(
 		private readonly NotificationStore $notificationStore,
-	) {}
+	) {
+	}
 
 	/**
 	 * @inheritDoc

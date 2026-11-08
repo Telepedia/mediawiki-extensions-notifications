@@ -114,7 +114,7 @@ class NotificationSenderTest extends MediaWikiUnitTestCase {
 		[ $john, $jane ] = $this->stored;
 		$this->assertSame( 'https://foo.example.com/icons/an-icon-fr.svg', $john->icon );
 		$this->assertSame( 'https://foo.example.com/icons/an-icon-en.svg', $jane->icon );
-		
+
 		$this->assertSame( 'https://foo.example.com/icons/cdxIconDiffs-en.svg', $jane->links[0]->icon );
 		$this->assertNull( $jane->links[1]->icon );
 	}

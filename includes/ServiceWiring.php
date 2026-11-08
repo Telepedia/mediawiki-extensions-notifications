@@ -13,16 +13,6 @@ use Telepedia\Extensions\Beacon\Presentation\RecipientFormatterFactory;
 
 /** @phpcs-require-sorted-array */
 return [
-	'Beacon.NotificationSender' => static function ( MediaWikiServices $services ): NotificationSender {
-		return new NotificationSender(
-			$services->getService( 'Beacon.NotificationTypeRegistry' ),
-			$services->getService( 'Beacon.RecipientFormatterFactory' ),
-			$services->getService( 'Beacon.NotificationStore' ),
-			SourceWiki::newFromConfig( $services->getMainConfig() ),
-			$services->getService( 'Beacon.NotificationIconRegistry' )
-		);
-	},
-
 	'Beacon.NotificationIconRegistry' => static function ( MediaWikiServices $services ): NotificationIconRegistry {
 		return new NotificationIconRegistry(
 			ExtensionRegistry::getInstance()->getAttribute( 'BeaconIcons' ),
@@ -30,6 +20,16 @@ return [
 			$services->getMainConfig()->get( MainConfigNames::LoadScript ),
 			$services->getUrlUtils(),
 			LoggerFactory::getInstance( 'Beacon' )
+		);
+	},
+
+	'Beacon.NotificationSender' => static function ( MediaWikiServices $services ): NotificationSender {
+		return new NotificationSender(
+			$services->getService( 'Beacon.NotificationTypeRegistry' ),
+			$services->getService( 'Beacon.RecipientFormatterFactory' ),
+			$services->getService( 'Beacon.NotificationStore' ),
+			SourceWiki::newFromConfig( $services->getMainConfig() ),
+			$services->getService( 'Beacon.NotificationIconRegistry' )
 		);
 	},
 
