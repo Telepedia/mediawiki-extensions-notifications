@@ -21,5 +21,9 @@
 	"beacon-notification-reverted-rollback": "Header of the notification sent when someone rolls back the recipient's edit. Plain text, rendered when the notification is created.\n\nParameters:\n* $1 - username of the user who rolled back the edit, also usable for GENDER\n* $2 - title of the page",
 	"beacon-notification-edited-user-js": "Header of the notification sent when someone else edits one of the recipient's personal JavaScript pages (User:Name/*.js). Plain text, rendered when the notification is created.\n\nParameters:\n* $1 - username of the user who made the edit, also usable for GENDER\n* $2 - title of the JavaScript page",
 	"beacon-notification-link-view-changes": "Label of a notification link to the diff of the change.",
-	"beacon-notification-link-page": "Label of a notification link to the page the notification is about."
+	"beacon-notification-link-page": "Label of a notification link to the page the notification is about.",
+	"beacon-special-title": "{{doc-special|Notifications}}\nTitle of Special:Notifications, which lists all of the user's notifications.\n{{Identical|Notifications}}",
+	"beacon-special-newest": "Link on Special:Notifications back to the first page (the newest notifications).",
+	"beacon-special-older": "Link on Special:Notifications to the next page of older notifications.",
+	"beacon-special-nav-label": "Aria label for the paging links on Special:Notifications."
 }
