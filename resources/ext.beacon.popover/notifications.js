@@ -104,9 +104,32 @@ const useNotificationStore = defineStore( 'beacon-notifications', {
 
 		/**
 		 * Mark a notification that has already been marked as read, as unread again
-		 * @param id
+		 * @param id the ID of the notification to be marked as unread
 		 */
-		markUnread( id ) {},
+		async markUnread( id ) {
+			const notification = this.notifications?.find( ( n ) => n.id === id );
+			if ( !notification || notification.read === null ) {
+				return;
+			}
+			const previousRead = notification.read;
+			notification.read = null;
+			this.unreadCount++;
+			this.syncBadge();
+
+			try {
+				const data = await new mw.Rest().post( '/beacon/v1/notifications/unread', {
+					ids: [ id ],
+					token: mw.user.tokens.get( 'csrfToken' )
+				} );
+				this.unreadCount = data.unreadCount;
+			} catch ( err ) {
+				notification.read = previousRead;
+				this.unreadCount--;
+				mw.notify( mw.msg( 'beacon-popover-action-error' ), { type: 'error' } );
+			} finally {
+				this.syncBadge();
+			}
+		},
 
 		toggle() {
 			this.isOpen = !this.isOpen;
