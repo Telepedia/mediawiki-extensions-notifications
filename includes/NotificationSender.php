@@ -33,7 +33,7 @@ class NotificationSender {
 		foreach ( $recipients as $recipient ) {
 			$rendered = $presenter->present( $this->formatterFactory->newForUser( $recipient ), $context );
 
-			$this->store->store( new Notification(
+			$id = $this->store->store( new Notification(
 				recipient: $recipient,
 				wiki: $this->wiki,
 				type: $type,
@@ -54,7 +54,9 @@ class NotificationSender {
 					$rendered->links
 				),
 			) );
-			$sent++;
+			if ( $id !== 0 ) {
+				$sent++;
+			}
 		}
 
 		return $sent;
