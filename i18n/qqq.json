@@ -25,5 +25,10 @@
 	"beacon-special-title": "{{doc-special|Notifications}}\nTitle of Special:Notifications, which lists all of the user's notifications.\n{{Identical|Notifications}}",
 	"beacon-special-newest": "Link on Special:Notifications back to the first page (the newest notifications).",
 	"beacon-special-older": "Link on Special:Notifications to the next page of older notifications.",
-	"beacon-special-nav-label": "Aria label for the paging links on Special:Notifications."
+	"beacon-special-nav-label": "Aria label for the paging links on Special:Notifications.",
+	"prefs-beacon": "Name of the notifications tab in Special:Preferences.\n{{Identical|Notifications}}",
+	"prefs-beacon-categories": "Heading above the list of notification categories in Special:Preferences.",
+	"beacon-category-reverted": "Label of the Special:Preferences checkbox for being notified when one of the user's edits is reverted.",
+	"beacon-category-edited-other-users-js": "Label of the Special:Preferences checkbox for being notified when someone else edits one of the user's personal JavaScript pages.",
+	"beacon-preferences-per-wiki": "Note at the top of the notification categories in Special:Preferences, shown when the GlobalPreferences extension is installed. The link goes to the same tab of Special:GlobalPreferences."
 }
