@@ -150,6 +150,12 @@
 		"schema": {
 			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SchemaHooks"
 		},
+		"preferences": {
+			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\PreferencesHooks",
+			"services": [
+				"Beacon.NotificationCategoryRegistry"
+			]
+		},
 		"skin": {
 			"class": "Telepedia\\Extensions\\Beacon\\Hooks\\SkinHooks",
 			"services": [
@@ -158,9 +164,11 @@
 		}
 	},
 	"Hooks": {
+		"GetPreferences": "preferences",
 		"LoadExtensionSchemaUpdates": "schema",
 		"OutputPageCheckLastModified": "skin",
-		"SkinTemplateNavigation::Universal": "skin"
+		"SkinTemplateNavigation::Universal": "skin",
+		"UserGetDefaultOptions": "preferences"
 	},
 	"ServiceWiringFiles": [
 		"includes/ServiceWiring.php"
@@ -202,6 +210,14 @@
 	],
 	"attributes": {
 		"Beacon": {
+			"Categories": {
+				"edited-other-users-js": {
+					"label": "beacon-category-edited-other-users-js"
+				},
+				"reverted": {
+					"label": "beacon-category-reverted"
+				}
+			},
 			"Icons": {},
 			"PopoverPlacement": {},
 			"Types": {

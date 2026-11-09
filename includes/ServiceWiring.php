@@ -5,6 +5,7 @@ use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Registration\ExtensionRegistry;
 use Telepedia\Extensions\Beacon\Domain\SourceWiki;
+use Telepedia\Extensions\Beacon\NotificationCategoryRegistry;
 use Telepedia\Extensions\Beacon\NotificationIconRegistry;
 use Telepedia\Extensions\Beacon\NotificationSender;
 use Telepedia\Extensions\Beacon\NotificationStore;
@@ -13,6 +14,12 @@ use Telepedia\Extensions\Beacon\Presentation\RecipientFormatterFactory;
 
 /** @phpcs-require-sorted-array */
 return [
+	'Beacon.NotificationCategoryRegistry' => static function (): NotificationCategoryRegistry {
+		return new NotificationCategoryRegistry(
+			ExtensionRegistry::getInstance()->getAttribute( 'BeaconCategories' )
+		);
+	},
+
 	'Beacon.NotificationIconRegistry' => static function ( MediaWikiServices $services ): NotificationIconRegistry {
 		return new NotificationIconRegistry(
 			ExtensionRegistry::getInstance()->getAttribute( 'BeaconIcons' ),
