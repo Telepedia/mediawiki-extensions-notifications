@@ -3,12 +3,14 @@
 namespace Telepedia\Extensions\Beacon\Rest;
 
 use JsonException;
+use MediaWiki\Rest\LocalizedHttpException;
 use MediaWiki\Rest\Response;
 use MediaWiki\Rest\SimpleHandler;
 use MediaWiki\User\UserIdentityUtils;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Telepedia\Extensions\Beacon\NotificationStore;
+use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
 use Wikimedia\ParamValidator\TypeDef\IntegerDef;
 use Wikimedia\Timestamp\TimestampFormat;
@@ -40,11 +42,7 @@ class GetNotificationHandler extends SimpleHandler {
 		$user = $this->getAuthority()->getUser();
 
 		if ( !$this->identityUtils->isNamed( $user ) ) {
-			return $this->getResponseFactory()->createHttpError(
-				403,
-				// maybe need a different name for this but alas
-				[ 'error' => wfMessage( 'beacon-error-named-only' )->text() ]
-			);
+			throw new LocalizedHttpException( new MessageValue( 'exception-nologin-text' ), 401 );
 		}
 
 		$params = $this->getValidatedParams();
