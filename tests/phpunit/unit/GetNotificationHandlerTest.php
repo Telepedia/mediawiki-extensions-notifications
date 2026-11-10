@@ -2,6 +2,7 @@
 
 namespace Telepedia\Extensions\Beacon\Tests\Unit;
 
+use MediaWiki\Rest\LocalizedHttpException;
 use MediaWiki\Rest\RequestData;
 use MediaWiki\Tests\Rest\Handler\HandlerTestTrait;
 use MediaWiki\User\UserIdentity;
@@ -28,7 +29,7 @@ class GetNotificationHandlerTest extends MediaWikiUnitTestCase {
 	 * @param array $ids
 	 * @return GetNotificationHandler
 	 */
-	private function newHandler( array $ids ): GetNotificationHandler {
+	private function newHandler( array $ids, bool $named = true ): GetNotificationHandler {
 		$store = $this->createMock( NotificationStore::class );
 		$store->method( 'listForUser' )->willReturnCallback(
 			function ( UserIdentity $user, int $limit, ?int $olderThan ) use ( $ids ) {
@@ -56,7 +57,7 @@ class GetNotificationHandlerTest extends MediaWikiUnitTestCase {
 		$store->method( 'getUnreadCount' )->willReturn( 2 );
 
 		$identityUtils = $this->createMock( UserIdentityUtils::class );
-		$identityUtils->method( 'isNamed' )->willReturn( true );
+		$identityUtils->method( 'isNamed' )->willReturn( $named );
 
 		return new GetNotificationHandler( $store, $identityUtils );
 	}
@@ -100,5 +101,14 @@ class GetNotificationHandlerTest extends MediaWikiUnitTestCase {
 		$this->get( $this->newHandler( [] ) );
 
 		$this->assertSame( [ 26, null ], $this->listCalls[0] );
+	}
+
+	public function testLoggedOutAndTemporaryUsersMustLogIn(): void {
+		$exception = $this->executeHandlerAndGetHttpException( $this->newHandler( [ 1 ], false ), new RequestData() );
+
+		$this->assertInstanceOf( LocalizedHttpException::class, $exception );
+		$this->assertSame( 401, $exception->getCode() );
+		$this->assertSame( 'exception-nologin-text', $exception->getMessageValue()->getKey() );
+		$this->assertSame( [], $this->listCalls );
 	}
 }

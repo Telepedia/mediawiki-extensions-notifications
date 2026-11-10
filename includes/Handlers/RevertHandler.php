@@ -2,9 +2,11 @@
 
 namespace Telepedia\Extensions\Beacon\Handlers;
 
+use MediaWiki\CommentFormatter\CommentFormatter;
 use MediaWiki\DomainEvent\DomainEventIngress;
 use MediaWiki\Page\Event\PageLatestRevisionChangedEvent;
 use MediaWiki\Page\Event\PageLatestRevisionChangedListener;
+use MediaWiki\Parser\Sanitizer;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\RevisionStore;
 use MediaWiki\Storage\EditResult;
@@ -24,6 +26,7 @@ class RevertHandler extends DomainEventIngress implements PageLatestRevisionChan
 	public function __construct(
 		private readonly RevisionStore $revisionStore,
 		private readonly TitleFactory $titleFactory,
+		private readonly CommentFormatter $commentFormatter,
 		private readonly NotificationSender $sender,
 	) {
 	}
@@ -93,13 +96,19 @@ class RevertHandler extends DomainEventIngress implements PageLatestRevisionChan
 
 		$title = $this->titleFactory->newFromPageIdentity( $page );
 
+		// convert summaries from wikitext to regular text
+		$summary = $revertRevision->getComment()?->text;
+		if ( $summary !== null ) {
+			$summary = Sanitizer::stripAllTags( $this->commentFormatter->format( $summary ) );
+		}
+
 		return $this->sender->send( 'reverted', $recipients, new NotificationContext(
 			agent: $reverter,
 			title: $title,
 			extra: [
 				'method' => $method,
 				'diffUrl' => $title->getFullURL( [ 'diff' => $revertRevision->getId() ] ),
-				'summary' => $revertRevision->getComment()?->text,
+				'summary' => $summary,
 			],
 		) );
 	}

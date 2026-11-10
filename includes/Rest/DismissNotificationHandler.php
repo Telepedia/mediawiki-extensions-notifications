@@ -3,11 +3,14 @@
 namespace Telepedia\Extensions\Beacon\Rest;
 
 use MediaWiki\ParamValidator\TypeDef\ArrayDef;
+use MediaWiki\Rest\LocalizedHttpException;
+use MediaWiki\Rest\Response;
 use MediaWiki\Rest\SimpleHandler;
 use MediaWiki\Rest\TokenAwareHandlerTrait;
 use MediaWiki\Rest\Validator\Validator;
 use MediaWiki\User\UserIdentityUtils;
 use Telepedia\Extensions\Beacon\NotificationStore;
+use Wikimedia\Message\MessageValue;
 use Wikimedia\ParamValidator\ParamValidator;
 
 class DismissNotificationHandler extends SimpleHandler {
@@ -20,15 +23,16 @@ class DismissNotificationHandler extends SimpleHandler {
 	) {
 	}
 
-	public function run() {
+	/**
+	 * Mark the given notifications as read
+	 * @return Response the user's unread count afterwards read from the primary to avoid replication
+	 * lag
+	 */
+	public function run(): Response {
 		$user = $this->getAuthority()->getUser();
 
 		if ( !$this->identityUtils->isNamed( $user ) ) {
-			return $this->getResponseFactory()->createHttpError(
-				403,
-				// maybe need a different name for this but alas
-				[ 'error' => wfMessage( 'beacon-error-named-only' )->text() ]
-			);
+			throw new LocalizedHttpException( new MessageValue( 'exception-nologin-text' ), 401 );
 		}
 
 		$body = $this->getValidatedBody();

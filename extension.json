@@ -192,6 +192,7 @@
 			"services": [
 				"RevisionStore",
 				"TitleFactory",
+				"CommentFormatter",
 				"Beacon.NotificationSender"
 			]
 		},

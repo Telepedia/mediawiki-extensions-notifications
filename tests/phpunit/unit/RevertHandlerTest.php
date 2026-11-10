@@ -2,6 +2,7 @@
 
 namespace Telepedia\Extensions\Beacon\Tests\Unit;
 
+use MediaWiki\CommentFormatter\CommentFormatter;
 use MediaWiki\CommentStore\CommentStoreComment;
 use MediaWiki\Page\PageIdentityValue;
 use MediaWiki\Revision\RevisionRecord;
@@ -32,7 +33,11 @@ class RevertHandlerTest extends MediaWikiUnitTestCase {
 	 * @param bool $revisionsExist whether the reverted revisions can be loaded
 	 * @return RevertHandler
 	 */
-	private function newHandler( array $authors, bool $revisionsExist = true ): RevertHandler {
+	private function newHandler(
+		array $authors,
+		bool $revisionsExist = true,
+		?string $formattedSummary = null
+	): RevertHandler {
 		$revisionStore = $this->createMock( RevisionStore::class );
 		$revisionStore->method( 'getRevisionById' )
 			->willReturn( $revisionsExist ? $this->createMock( RevisionRecord::class ) : null );
@@ -52,7 +57,14 @@ class RevertHandlerTest extends MediaWikiUnitTestCase {
 			}
 		);
 
-		return new RevertHandler( $revisionStore, $titleFactory, $sender );
+		$commentFormatter = $this->createMock( CommentFormatter::class );
+		if ( $formattedSummary === null ) {
+			$commentFormatter->method( 'format' )->willReturnArgument( 0 );
+		} else {
+			$commentFormatter->method( 'format' )->willReturn( $formattedSummary );
+		}
+
+		return new RevertHandler( $revisionStore, $titleFactory, $commentFormatter, $sender );
 	}
 
 	private function newRevertRevision( ?string $summary = null ): RevisionRecord {
@@ -114,5 +126,32 @@ class RevertHandlerTest extends MediaWikiUnitTestCase {
 		$this->assertSame( 'rollback', $context->extra['method'] );
 		$this->assertSame( self::DIFF_URL, $context->extra['diffUrl'] );
 		$this->assertSame( 'rv vandalism', $context->extra['summary'] );
+	}
+
+	public function testSummaryIsStrippedToPlainText(): void {
+		$handler = $this->newHandler(
+			[ new UserIdentityValue( 1, 'John Appleseed' ) ],
+			true,
+			'Undid revision <a href="/wiki/Special:Diff/6767" title="Special:Diff/6767">6767</a> by ' .
+				'<a href="/wiki/User:Foo" title="User:Foo">Foo &amp; Bar</a>'
+		);
+
+		$handler->notify(
+			$this->newRevertRevision( 'Undid revision [[Special:Diff/6767|6767]] by [[User:Foo|Foo & Bar]]' ),
+			new UserIdentityValue( 2, 'Reverter' ),
+			201,
+			201,
+			'undo'
+		);
+
+		$this->assertSame( 'Undid revision 6767 by Foo & Bar', $this->sent[0][2]->extra['summary'] );
+	}
+
+	public function testMissingSummaryStaysNull(): void {
+		$handler = $this->newHandler( [ new UserIdentityValue( 1, 'John Appleseed' ) ] );
+
+		$handler->notify( $this->newRevertRevision(), new UserIdentityValue( 2, 'Reverter' ), 201, 201, 'undo' );
+
+		$this->assertNull( $this->sent[0][2]->extra['summary'] );
 	}
 }

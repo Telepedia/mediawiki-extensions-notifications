@@ -37,15 +37,23 @@ class NotificationStore {
 	/**
 	 * Store a new notification
 	 * @param Notification $notification
-	 * @return int the new notification ID
+	 * @return int the new notification ID, or 0 if the user has no central id
 	 * @throws JsonException
 	 */
 	public function store( Notification $notification ): int {
+		$centralId = $this->getCentralId( $notification->recipient );
+		if ( $centralId === 0 ) {
+			$this->logger->warning( 'Storing Beacon notification failed: {user} has no central ID. Skipping...', [
+				'user' => $notification->recipient->getName(),
+			] );
+			return 0;
+		}
+
 		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
 		$dbw->newInsertQueryBuilder()
 			->insertInto( 'beacon_notifications' )
 			->row( [
-				'notif_user' => $notification->recipient->getId(),
+				'notif_user' => $centralId,
 				'notif_wiki' => $notification->wiki->id,
 				'notif_wiki_name' => $notification->wiki->name,
 				'notif_type' => $notification->type,
@@ -70,7 +78,7 @@ class NotificationStore {
 			->execute();
 
 		$id = $dbw->insertId();
-		$this->invalidateUnreadCounts( [ $notification->recipient->getId() ] );
+		$this->invalidateUnreadCounts( [ $centralId ] );
 
 		return $id;
 	}
