@@ -2,6 +2,8 @@
 
 namespace Telepedia\Extensions\Beacon;
 
+use MediaWiki\User\Options\UserOptionsLookup;
+use MediaWiki\User\UserIdentity;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Telepedia\Extensions\Beacon\Domain\SourceWiki;
@@ -16,6 +18,8 @@ class NotificationSender {
 		private readonly NotificationStore $store,
 		private readonly SourceWiki $wiki,
 		private readonly NotificationIconRegistry $icons,
+		private readonly NotificationCategoryRegistry $categories,
+		private readonly UserOptionsLookup $userOptions,
 	) {
 	}
 
@@ -31,6 +35,10 @@ class NotificationSender {
 
 		$sent = 0;
 		foreach ( $recipients as $recipient ) {
+			if ( !$this->wantsCategory( $recipient, $category ) ) {
+				continue;
+			}
+
 			$rendered = $presenter->present( $this->formatterFactory->newForUser( $recipient ), $context );
 
 			$id = $this->store->store( new Notification(
@@ -60,5 +68,21 @@ class NotificationSender {
 		}
 
 		return $sent;
+	}
+
+	/**
+	 * Whether the recipient of the notification wants to receive notifications about this
+	 * type of event. This checks on the SENDING wiki, and will use GlobalPreferences value if available
+	 * and not overriden
+	 * @param UserIdentity $recipient
+	 * @param string $category
+	 * @return bool
+	 */
+	private function wantsCategory( UserIdentity $recipient, string $category ): bool {
+		if ( !$this->categories->has( $category ) ) {
+			return true;
+		}
+
+		return $this->userOptions->getBoolOption( $recipient, $this->categories->getPreferenceName( $category ) );
 	}
 }

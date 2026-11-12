@@ -19,6 +19,14 @@ class NotificationCategoryRegistry {
 	}
 
 	/**
+	 * @param string $category
+	 * @return bool whether the category is registered and therefore can have a preference
+	 */
+	public function has( string $category ): bool {
+		return isset( $this->categories[$category] );
+	}
+
+	/**
 	 * @return array
 	 */
 	public function getNames(): array {

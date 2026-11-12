@@ -36,7 +36,9 @@ return [
 			$services->getService( 'Beacon.RecipientFormatterFactory' ),
 			$services->getService( 'Beacon.NotificationStore' ),
 			SourceWiki::newFromConfig( $services->getMainConfig() ),
-			$services->getService( 'Beacon.NotificationIconRegistry' )
+			$services->getService( 'Beacon.NotificationIconRegistry' ),
+			$services->getService( 'Beacon.NotificationCategoryRegistry' ),
+			$services->getUserOptionsLookup()
 		);
 	},
 
