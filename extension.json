@@ -275,6 +275,15 @@
 				"Beacon.NotificationStore",
 				"ConnectionProvider"
 			]
+		},
+		"BeaconTrimNotificationsJob": {
+			"class": "Telepedia\\Extensions\\Beacon\\Jobs\\BeaconTrimNotificationsJob",
+			"needsPage": false,
+			"services": [
+				"Beacon.NotificationPurger",
+				"UserIdentityLookup",
+				"ConnectionProvider"
+			]
 		}
 	},
 	"config": {

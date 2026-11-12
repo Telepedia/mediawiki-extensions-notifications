@@ -207,10 +207,9 @@
 				"unique": false
 			},
 			{
-				"name": "notif_read_created",
-				"comment": "Age-based purges of read and unread notifications",
+				"name": "notif_created",
+				"comment": "Purging notifications older than $wgBeaconMaxNotificationAge",
 				"columns": [
-					"notif_read",
 					"notif_created"
 				],
 				"unique": false

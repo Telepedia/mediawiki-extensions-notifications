@@ -26,7 +26,7 @@ CREATE TABLE /*_*/beacon_notifications (
   notif_hidden TINYINT UNSIGNED DEFAULT 0 NOT NULL,
   INDEX notif_user_id (notif_user, notif_id),
   INDEX notif_user_read (notif_user, notif_read, notif_id),
-  INDEX notif_read_created (notif_read, notif_created),
+  INDEX notif_created (notif_created),
   INDEX notif_wiki_page (notif_wiki, notif_page_id),
   PRIMARY KEY(notif_id)
 ) /*$wgDBTableOptions*/;

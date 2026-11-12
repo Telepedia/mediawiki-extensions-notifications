@@ -24,6 +24,6 @@ CREATE INDEX notif_user_id ON /*_*/beacon_notifications (notif_user, notif_id);
 
 CREATE INDEX notif_user_read ON /*_*/beacon_notifications (notif_user, notif_read, notif_id);
 
-CREATE INDEX notif_read_created ON /*_*/beacon_notifications (notif_read, notif_created);
+CREATE INDEX notif_created ON /*_*/beacon_notifications (notif_created);
 
 CREATE INDEX notif_wiki_page ON /*_*/beacon_notifications (notif_wiki, notif_page_id);

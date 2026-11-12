@@ -1,11 +1,13 @@
 <?php
 
+use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MainConfigNames;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Registration\ExtensionRegistry;
 use Telepedia\Extensions\Beacon\Domain\SourceWiki;
 use Telepedia\Extensions\Beacon\NotificationIconRegistry;
+use Telepedia\Extensions\Beacon\NotificationPurger;
 use Telepedia\Extensions\Beacon\NotificationSender;
 use Telepedia\Extensions\Beacon\NotificationStore;
 use Telepedia\Extensions\Beacon\NotificationTypeRegistry;
@@ -23,13 +25,23 @@ return [
 		);
 	},
 
+	'Beacon.NotificationPurger' => static function ( MediaWikiServices $services ): NotificationPurger {
+		return new NotificationPurger(
+			new ServiceOptions( NotificationPurger::CONSTRUCTOR_OPTIONS, $services->getMainConfig() ),
+			$services->getService( 'Beacon.NotificationStore' ),
+			$services->getJobQueueGroup(),
+			LoggerFactory::getInstance( 'Beacon' )
+		);
+	},
+
 	'Beacon.NotificationSender' => static function ( MediaWikiServices $services ): NotificationSender {
 		return new NotificationSender(
 			$services->getService( 'Beacon.NotificationTypeRegistry' ),
 			$services->getService( 'Beacon.RecipientFormatterFactory' ),
 			$services->getService( 'Beacon.NotificationStore' ),
 			SourceWiki::newFromConfig( $services->getMainConfig() ),
-			$services->getService( 'Beacon.NotificationIconRegistry' )
+			$services->getService( 'Beacon.NotificationIconRegistry' ),
+			$services->getService( 'Beacon.NotificationPurger' )
 		);
 	},
 

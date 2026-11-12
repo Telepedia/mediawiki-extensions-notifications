@@ -308,12 +308,79 @@ class NotificationStore {
 	}
 
 	/**
-	 * Purge notifications from the database
-	 * NOT-IMPLEMENTED
-	 * @return int the number of rows purged
+	 * Delete a batch of notifications oler than the given $cutoff
+	 * @param string $cutoff timestamp, in any form understood by ConvertibleTimestamp::class
+	 * @param int $batchSize the most rows to delete in one call
+	 * @return int the number of rows deleted or 0 if none remain
 	 */
-	public function purge(): int {
-		return 0;
+	public function deleteOlderThan( string $cutoff, int $batchSize ): int {
+		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+
+		$res = $dbw->newSelectQueryBuilder()
+			->select( [ 'notif_id', 'notif_user' ] )
+			->from( 'beacon_notifications' )
+			->where( $dbw->expr( 'notif_created', '<', $dbw->timestamp( $cutoff ) ) )
+			->limit( $batchSize )
+			->caller( __METHOD__ )
+			->fetchResultSet();
+
+		$ids = [];
+		$users = [];
+		foreach ( $res as $row ) {
+			$ids[] = (int)$row->notif_id;
+			$users[(int)$row->notif_user] = true;
+		}
+
+		return $this->deleteByIds( $ids, array_keys( $users ) );
+	}
+
+	/**
+	 * Delete one batch of a user's notifications beyond their newest $keep
+	 * @param UserIdentity $user
+	 * @param int $keep how many of the newest notifications to keep
+	 * @param int $batchSize the most rows to delete in one call
+	 * @return int the number of rows deleted or 0 when they are within the limit
+	 */
+	public function deleteBeyondNewest( UserIdentity $user, int $keep, int $batchSize ): int {
+		$centralId = $this->getCentralId( $user );
+		if ( !$centralId ) {
+			return 0;
+		}
+
+		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+		$ids = $dbw->newSelectQueryBuilder()
+			->select( 'notif_id' )
+			->from( 'beacon_notifications' )
+			->where( [ 'notif_user' => $centralId ] )
+			->orderBy( 'notif_id', SelectQueryBuilder::SORT_DESC )
+			->offset( $keep )
+			->limit( $batchSize )
+			->caller( __METHOD__ )
+			->fetchFieldValues();
+
+		return $this->deleteByIds( array_map( 'intval', $ids ), [ $centralId ] );
+	}
+
+	/**
+	 * @param array $ids notification IDs
+	 * @param array $userIds the central IDs of the users they belong to
+	 * @return int the number of rows deleted
+	 */
+	private function deleteByIds( array $ids, array $userIds ): int {
+		if ( !$ids ) {
+			return 0;
+		}
+
+		$dbw = $this->connectionProvider->getPrimaryDatabase( self::DOMAIN );
+		$dbw->newDeleteQueryBuilder()
+			->deleteFrom( 'beacon_notifications' )
+			->where( [ 'notif_id' => $ids ] )
+			->caller( __METHOD__ )
+			->execute();
+
+		$this->invalidateUnreadCounts( $userIds );
+
+		return count( $ids );
 	}
 
 	/**

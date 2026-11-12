@@ -16,6 +16,7 @@ class NotificationSender {
 		private readonly NotificationStore $store,
 		private readonly SourceWiki $wiki,
 		private readonly NotificationIconRegistry $icons,
+		private readonly NotificationPurger $purger,
 	) {
 	}
 
@@ -29,7 +30,7 @@ class NotificationSender {
 		$presenter = $this->types->getPresenter( $type );
 		$category = $this->types->getCategory( $type );
 
-		$sent = 0;
+		$sent = [];
 		foreach ( $recipients as $recipient ) {
 			$rendered = $presenter->present( $this->formatterFactory->newForUser( $recipient ), $context );
 
@@ -55,10 +56,12 @@ class NotificationSender {
 				),
 			) );
 			if ( $id !== 0 ) {
-				$sent++;
+				$sent[] = $recipient;
 			}
 		}
 
-		return $sent;
+		$this->purger->queueTrim( $sent );
+
+		return count( $sent );
 	}
 }
