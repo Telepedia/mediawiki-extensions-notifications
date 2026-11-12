@@ -21,6 +21,13 @@ class NotificationCategoryRegistryTest extends MediaWikiUnitTestCase {
 		$this->assertSame( [ 'reverted', 'thanks' ], $this->newRegistry()->getNames() );
 	}
 
+	public function testKnowsWhichCategoriesAreRegistered(): void {
+		$registry = $this->newRegistry();
+
+		$this->assertTrue( $registry->has( 'thanks' ) );
+		$this->assertFalse( $registry->has( 'mention' ) );
+	}
+
 	public function testLabelFallsBackToAMessageNamedAfterTheCategory(): void {
 		$registry = $this->newRegistry();
 
