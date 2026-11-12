@@ -3,15 +3,19 @@
 namespace Telepedia\Extensions\Beacon\Tests\Unit;
 
 use MediaWiki\User\CentralId\CentralIdLookup;
+use MediaWiki\User\UserIdentity;
 use MediaWiki\User\UserIdentityValue;
 use MediaWikiUnitTestCase;
 use Psr\Log\NullLogger;
+use Telepedia\Extensions\Beacon\Domain\Notification;
+use Telepedia\Extensions\Beacon\Domain\SourceWiki;
 use Telepedia\Extensions\Beacon\NotificationStore;
 use Wikimedia\ObjectCache\HashBagOStuff;
 use Wikimedia\ObjectCache\WANObjectCache;
 use Wikimedia\Rdbms\Expression;
 use Wikimedia\Rdbms\IConnectionProvider;
 use Wikimedia\Rdbms\IDatabase;
+use Wikimedia\Rdbms\InsertQueryBuilder;
 use Wikimedia\Rdbms\SelectQueryBuilder;
 use Wikimedia\Rdbms\UpdateQueryBuilder;
 
@@ -56,6 +60,11 @@ class NotificationStoreUnreadCountTest extends MediaWikiUnitTestCase {
 	 */
 	private array $updates = [];
 
+	/**
+	 * @var array rows inserted
+	 */
+	private array $inserts = [];
+
 	private function newStore(): NotificationStore {
 		$this->wanCache = new WANObjectCache( [ 'cache' => new HashBagOStuff() ] );
 		$this->wanCache->setMockTime( $this->now );
@@ -63,6 +72,13 @@ class NotificationStoreUnreadCountTest extends MediaWikiUnitTestCase {
 		$db = $this->createMock( IDatabase::class );
 		$db->method( 'newSelectQueryBuilder' )->willReturnCallback( static fn () => new SelectQueryBuilder( $db ) );
 		$db->method( 'newUpdateQueryBuilder' )->willReturnCallback( static fn () => new UpdateQueryBuilder( $db ) );
+		$db->method( 'newInsertQueryBuilder' )->willReturnCallback( static fn () => new InsertQueryBuilder( $db ) );
+		$db->method( 'insert' )->willReturnCallback(
+			function ( $table, $rows ) {
+				$this->inserts[] = $rows;
+			}
+		);
+		$db->method( 'insertId' )->willReturn( 16 );
 		$db->method( 'selectRowCount' )->willReturnCallback(
 			function ( $tables, $var, $conds, $fname, $options ) {
 				$this->countQueries[] = [ $conds, $options ];
@@ -200,5 +216,38 @@ class NotificationStoreUnreadCountTest extends MediaWikiUnitTestCase {
 		$store->invalidateUnreadCounts( [ self::CENTRAL_ID ] );
 
 		$this->assertGreaterThan( $before, $store->getUnreadCountTouched( $this->newUser() ) );
+	}
+
+	private function newNotification( UserIdentity $recipient ): Notification {
+		return new Notification(
+			recipient: $recipient,
+			wiki: new SourceWiki( 'foowiki', 'Foo Wiki' ),
+			type: 'reverted',
+			category: 'reverted',
+			url: 'https://foo.example.com/wiki/Page',
+			header: 'Someone reverted your edit',
+			language: 'en',
+			icon: 'cdxIconUndo',
+			created: '20261109120000',
+		);
+	}
+
+	public function testStoresTheCentralIdAndInvalidatesThatUsersCount(): void {
+		$this->dbCount = 2;
+		$store = $this->newStore();
+		$this->primeCache( $store );
+
+		$this->dbCount = 3;
+		$this->assertSame( 16, $store->store( $this->newNotification( $this->newUser() ) ) );
+
+		$this->assertSame( self::CENTRAL_ID, $this->inserts[0][0]['notif_user'] );
+		$this->assertSame( 3, $store->getUnreadCount( $this->newUser() ) );
+	}
+
+	public function testDoesNotStoreForAUserWithoutACentralId(): void {
+		$store = $this->newStore();
+
+		$this->assertSame( 0, $store->store( $this->newNotification( new UserIdentityValue( 99, 'Nobody' ) ) ) );
+		$this->assertSame( [], $this->inserts );
 	}
 }
