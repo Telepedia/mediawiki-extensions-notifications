@@ -277,5 +277,15 @@
 			]
 		}
 	},
+	"config": {
+		"BeaconMaxNotificationAge": {
+			"value": 365,
+			"description": "Integer. Delete notifications, both unread and read, which are older than this amount of days. -1 to disable."
+		},
+		"BeaconMaxNotificationsPerUser": {
+			"value": 2000,
+			"description": "Integer. Keep at most this many of each user's newest notifications. This is checked after each dispatch. -1 to disable."
+		}
+	},
 	"manifest_version": 2
 }
