@@ -3,11 +3,13 @@
 namespace Telepedia\Extensions\Beacon\Tests\Unit;
 
 use MediaWiki\Title\Title;
+use MediaWiki\User\Options\UserOptionsLookup;
 use MediaWiki\User\UserIdentityValue;
 use MediaWikiUnitTestCase;
 use Telepedia\Extensions\Beacon\Domain\Notification;
 use Telepedia\Extensions\Beacon\Domain\NotificationLink;
 use Telepedia\Extensions\Beacon\Domain\SourceWiki;
+use Telepedia\Extensions\Beacon\NotificationCategoryRegistry;
 use Telepedia\Extensions\Beacon\NotificationIconRegistry;
 use Telepedia\Extensions\Beacon\NotificationSender;
 use Telepedia\Extensions\Beacon\NotificationStore;
@@ -29,7 +31,14 @@ class NotificationSenderTest extends MediaWikiUnitTestCase {
 	 */
 	private array $stored = [];
 
-	private function newSender(): NotificationSender {
+	/**
+	 * @param array $optedOut usernames of users who turned the category off
+	 * @param array $categories the registered categories
+	 */
+	private function newSender(
+		array $optedOut = [],
+		array $categories = [ 'reverted-category' => [] ]
+	): NotificationSender {
 		$presenter = $this->createMock( NotificationPresenter::class );
 		$presenter->method( 'present' )->willReturnCallback(
 			static fn ( RecipientFormatter $formatter, NotificationContext $context ) => new RenderedNotification(
@@ -69,12 +78,20 @@ class NotificationSenderTest extends MediaWikiUnitTestCase {
 			static fn ( string $name, string $language ) => "https://foo.example.com/icons/$name-$language.svg"
 		);
 
+		$userOptions = $this->createMock( UserOptionsLookup::class );
+		$userOptions->method( 'getBoolOption' )->willReturnCallback(
+			static fn ( $user, string $option ) => $option === 'beacon-web-reverted-category'
+				&& !in_array( $user->getName(), $optedOut, true )
+		);
+
 		return new NotificationSender(
 			$types,
 			$formatterFactory,
 			$store,
 			new SourceWiki( 'foowiki', 'Foo Wiki' ),
-			$icons
+			$icons,
+			new NotificationCategoryRegistry( $categories ),
+			$userOptions
 		);
 	}
 
@@ -122,5 +139,26 @@ class NotificationSenderTest extends MediaWikiUnitTestCase {
 	public function testNoRecipientsSendsNothing(): void {
 		$this->assertSame( 0, $this->newSender()->send( 'reverted', [], new NotificationContext() ) );
 		$this->assertSame( [], $this->stored );
+	}
+
+	public function testRecipientsWhoTurnedTheCategoryOffAreSkipped(): void {
+		$sent = $this->newSender( [ 'John Appleseed' ] )->send(
+			'reverted',
+			[ new UserIdentityValue( 1, 'John Appleseed' ), new UserIdentityValue( 3, 'Jane Doe' ) ],
+			new NotificationContext()
+		);
+
+		$this->assertSame( 1, $sent );
+		$this->assertSame( [ 3 ], array_map( static fn ( $n ) => $n->recipient->getId(), $this->stored ) );
+	}
+
+	public function testAnUnregisteredCategoryIsAlwaysSent(): void {
+		$sent = $this->newSender( [ 'John Appleseed' ], [] )->send(
+			'reverted',
+			[ new UserIdentityValue( 1, 'John Appleseed' ) ],
+			new NotificationContext()
+		);
+
+		$this->assertSame( 1, $sent );
 	}
 }
