@@ -31,7 +31,8 @@
 		}
 	},
 	"AutoloadNamespaces": {
-		"Telepedia\\Extensions\\Beacon\\": "includes/"
+		"Telepedia\\Extensions\\Beacon\\": "includes/",
+		"Telepedia\\Extensions\\Beacon\\Maintenance\\": "maintenance/"
 	},
 	"ResourceModules": {
 		"ext.beacon.styles": {
